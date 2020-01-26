@@ -40,16 +40,25 @@
             var text;
             var button;
             var timeForExcercise = 19;
+            var warmUpTime = 6;
+            var relaxTime = 10;
+            var guideText;
+            var warmUpIsEnded = false;
+            var excerciseIsEnded = false;
+            var relaxIsEnded = true;
+            var audio;
             
             function initSizes(){
                     container = document.getElementById("container");
                     text = document.getElementById("counterText");
                     button = document.getElementById("button");
+                    guideText = document.getElementById("guideText");
                     var scale = document.documentElement.clientWidth/1920;
                 
                     text.style.fontSize = 800*scale + "px";
                     text.style.marginTop = (0-100*scale) + "px";
                     button.style.fontSize = 90*scale + "px";
+                    guideText.style.fontSize = 90*scale + "px";
                     button.style.height = 150*scale + "px";
                     button.style.width = 700*scale + "px";
                     button.style.marginTop = (0-300*scale) + "px";
@@ -58,11 +67,45 @@
             
             
             function countDown(){
-                var startCounter = setInterval(function(){
-
+                    warmUp();                        
+                }
+            
+            
+            
+            function warmUp(){
+                    audio = new Audio('warm_up.mp3');
+                    audio.play();
+                    var warmUp = setInterval(function(){
                     container = document.getElementById("container");
                     text = document.getElementById("counterText");
-                    console.log("run" + timeForExcercise);
+                    guideText.innerHTML = "GET READY...";
+                    
+                    if(warmUpTime>9){
+                        rewriteText(warmUpTime);
+                    }else{
+                        rewriteText("0"+warmUpTime);
+                    }
+
+                    if(warmUpTime<=1){
+                          clearInterval(warmUp);
+                            warmUpTime = 7;
+                            warmUpIsEnded = true;
+                            audio.pause();
+                            exercise();
+                            
+                    }
+                    warmUpTime--;
+                },1000);
+            }
+            
+            function exercise(){
+                    audio = new Audio('exercise.mp3');
+                    audio.play();
+                    var startCounter = setInterval(function(){
+                    
+                    container = document.getElementById("container");
+                    text = document.getElementById("counterText");
+                    guideText.innerHTML = "GO!";
                     
                     if(timeForExcercise>9){
                         rewriteText(timeForExcercise);
@@ -72,15 +115,45 @@
 
                     if(timeForExcercise<=0){
                           clearInterval(startCounter);
-                            timeForExcercise = 20;
+                            timeForExcercise = 21;
+                            excerciseIsEnded = true;
+                            audio.pause();
+                            relax();
                     }
                     timeForExcercise--;
                 },1000);
-                                           
-                }
-                    function rewriteText(newText){
-                        text.innerHTML= newText;   
+            }
+            
+            function relax(){
+                    audio = new Audio('relax.mp3');
+                    audio.play();
+                    var relax = setInterval(function(){
+
+                    container = document.getElementById("container");
+                    text = document.getElementById("counterText");
+                    guideText.innerHTML = "RELAX";
+                    
+                    if(relaxTime>9){
+                        rewriteText(relaxTime);
+                    }else{
+                        rewriteText("0"+relaxTime);
                     }
+
+                    if(relaxTime<=0){
+                          clearInterval(relax);
+                            relaxTime = 11;
+                        relaxIsEnded = true;
+                        audio.pause();
+                        warmUp();
+                    }
+                    relaxTime--;
+                },1000);
+            }
+            
+                
+            function rewriteText(newText){
+                text.innerHTML= newText;   
+            }
             
             window.addEventListener('resize', function(){
                 initSizes();
@@ -91,7 +164,8 @@
     </head>
     <body>
         <div id="container">
-            <p id="counterText">20</p>
+            <p id="guideText">TIMER </p>
+            <p id="counterText">00</p>
             <button id="button" onclick="countDown()">START</button>
         </div>
     </body>
