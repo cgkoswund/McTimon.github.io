@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <meta charset="UTF-8">
+
+        <style>
+            *{
+                margin : 0;
+            }
+            #container{
+                vertical-align: middle;
+                text-align: center;
+                
+                height: 100%;
+            }
+            
+            body{
+                background-color: teal;
+            }
+            
+            #counterText{
+                font-size: 700px;
+                padding-top: 0;
+                margin-top: -20px;
+                padding-bottom: 0;
+                margin-bottom: -20px;
+                
+            }
+            
+            #button{
+                width:35%;
+                height: 100px;
+/*                margin-top:  -200px;*/
+                font-size: 50px;
+            }
+        </style>
+        <script>
+            var container;
+            var text;
+            var button;
+            var timeForExcercise = 19;
+            
+            function initSizes(){
+                    container = document.getElementById("container");
+                    text = document.getElementById("counterText");
+                    button = document.getElementById("button");
+                    var scale = document.documentElement.clientWidth/1920;
+                
+                    text.style.fontSize = 800*scale + "px";
+                    text.style.marginTop = (0-100*scale) + "px";
+                    button.style.fontSize = 90*scale + "px";
+                    button.style.height = 150*scale + "px";
+                    button.style.width = 700*scale + "px";
+                    button.style.marginTop = (0-300*scale) + "px";
+//                    text.style.color = "#ff0000";
+            }
+            
+            
+            function countDown(){
+                var startCounter = setInterval(function(){
+
+                    container = document.getElementById("container");
+                    text = document.getElementById("counterText");
+                    console.log("run" + timeForExcercise);
+                    
+                    if(timeForExcercise>9){
+                        rewriteText(timeForExcercise);
+                    }else{
+                        rewriteText("0"+timeForExcercise);
+                    }
+
+                    if(timeForExcercise<=0){
+                          clearInterval(startCounter);
+                            timeForExcercise = 20;
+                    }
+                    timeForExcercise--;
+                },1000);
+                                           
+                }
+                    function rewriteText(newText){
+                        text.innerHTML= newText;   
+                    }
+            
+            window.addEventListener('resize', function(){
+                initSizes();
+            }, true);
+            
+            window.onload = initSizes;
+        </script>
+    </head>
+    <body>
+        <div id="container">
+            <p id="counterText">20</p>
+            <button id="button" onclick="countDown()">START</button>
+        </div>
+    </body>
+</html>
