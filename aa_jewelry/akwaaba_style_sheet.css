@@ -1,0 +1,83 @@
+#allTextContainer{
+    width: 80%;
+    align-self: center;
+    margin-left: 10%
+}
+#firstFont h1{
+    font-family: 'Bubblegum Sans', cursive;
+}
+#firstFont h1 span{
+    font-family: 'Zhi Mang Xing', cursive;
+}
+#firstFont h2{
+    font-family: 'Josefin Slab', serif;
+}
+#firstFont p{
+    font-family: 'Ibarra Real Nova', serif;
+}
+
+
+
+#secondFont h1{
+    font-family: 'Caesar Dressing', cursive;
+}
+#secondFont h1 span{
+    font-family: 'Dynalight';
+}
+#secondFont h2{
+    font-family: 'Rokkitt', serif;
+}
+#secondFont p{
+    font-family: 'EB Garamond', serif;
+}
+
+
+
+#thirdFont h1{
+    font-family: 'Lacquer', sans-serif;
+}
+#thirdFont h1 span{
+    font-family: 'Great Vibes', cursive;
+}
+#thirdFont h2{
+    font-family: 'Josefin Slab', serif;
+}
+#thirdFont p{
+    font-family: 'Alegreya', serif;
+}
+
+
+
+
+
+#fourthFont h1{
+    font-family: 'Walter Turncoat', cursive;
+}
+#fourthFont h1 span{
+    font-family: 'Parisienne', cursive;
+}
+#fourthFont h2{
+    font-family: 'Rokkitt', serif;
+}
+#fourthFont p{
+    font-family: 'Tinos', serif;
+}
+
+
+
+
+
+#fifthFont h1{
+    font-family: 'Sedgwick Ave Display', cursive;
+}
+#fifthFont h1 span{
+    font-family: 'Pinyon Script', cursive;
+}
+#fifthFont h2{
+    font-family: 'Josefin Slab', serif;
+}
+#fifthFont p{
+    font-family: sans-serif;
+}
+
+
