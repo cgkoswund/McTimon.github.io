@@ -23,7 +23,7 @@ function spherePointCloud(pointCount) {
     return points;
 }
 
-const vertexData = spherePointCloud(1e2/3);
+const vertexData = spherePointCloud(1e5);
 
 console.log(vertexData);
 
@@ -43,7 +43,7 @@ gl.shaderSource(vertexShader,`
                 void main(){
                     vColour = vec3(position.xy,1);
                     gl_Position = matrix * vec4(position, 1);
-                    gl_PointSize = 10.0;
+                    gl_PointSize = 1.0;
                 }
                 
                 `);
