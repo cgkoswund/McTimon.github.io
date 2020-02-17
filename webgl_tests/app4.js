@@ -23,13 +23,13 @@ function spherePointCloud(pointCount) {
     return points;
 }
 
-const vertexData = spherePointCloud(1e5/3);
+const vertexData = spherePointCloud(1e2/3);
 
 console.log(vertexData);
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.DYNAMIC_DRAW);
 
 const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vertexShader,`
@@ -43,7 +43,7 @@ gl.shaderSource(vertexShader,`
                 void main(){
                     vColour = vec3(position.xy,1);
                     gl_Position = matrix * vec4(position, 1);
-                    gl_PointSize = 0.1;
+                    gl_PointSize = 10.0;
                 }
                 
                 `);
