@@ -154,7 +154,7 @@ gl.shaderSource(vertexShader,`
                 precision mediump float;
 
                 const vec3 lightDirection = normalize(vec3(1.0,1.0,0));
-                const float ambient = 0.1;
+                const float ambient = 0.5;
 
                 attribute vec3 position;
                 attribute vec2 uv;
