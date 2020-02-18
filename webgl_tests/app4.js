@@ -95,7 +95,7 @@ glMatrix.mat4.perspective(projectionMatrix,
     const finalMatrix = glMatrix.mat4.create();
 
 // glMatrix.mat4.translate(modelMatrix,modelMatrix, [0, 0 , 0]);
-glMatrix.mat4.translate(viewMatrix,viewMatrix, [-.1, 0 , 3]);
+glMatrix.mat4.translate(viewMatrix,viewMatrix, [0, 0 , 3]);
 glMatrix.mat4.invert(viewMatrix,viewMatrix);
 
 
@@ -103,6 +103,7 @@ glMatrix.mat4.scale(modelMatrix,modelMatrix,[1.5,1.5,1.5]);
 
 function animate() {
     requestAnimationFrame(animate);
+
 
     // glMatrix.mat4.rotateY(modelMatrix, modelMatrix, 0.03);
     // glMatrix.mat4.rotateX(modelMatrix, modelMatrix, Math.PI/2 / 90);
