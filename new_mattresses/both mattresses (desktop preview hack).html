@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style>
+        p{
+           font-family: Raleway;
+           margin-top: 30px;
+           margin-bottom: 3px;
+           padding-top: 2px;
+           padding-bottom: 10px;
+           font-size: 30px;
+           font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+        iframe{
+            width: 100%;
+            height: auto;
+            border: none;
+            overflow-x: hidden;
+        }
+        </style>
+        
+        <script>
+            //auto re-fit iframe on window load/reload
+            window.onload = iframeHeightFull;
+            
+            //auto refit iframe on window resize
+            if(window.attachEvent){
+                window.attachEvent('onresize', function(){
+                    iframeHeightFull(); 
+            });
+            }else if(window.addEventListener){
+
+                window.addEventListener('resize', function(){
+                    iframeHeightFull();
+            }, true);
+            }
+                
+            
+            //iframe height scale proportional to width
+            function iframeHeightFull(){
+                var latex_animation_iframe = document.getElementById("latex_animations");
+                var luxury_animation_iframe = document.getElementById("luxury_animations");
+
+                var window_width = document.documentElement.clientWidth;
+                
+                if(window_width>997){
+                    latex_animation_iframe.style.height = 1090+ "px";
+                    luxury_animation_iframe.style.height = 1090 +'px';
+                }else if(window_width <768){
+                    
+                         
+                    latex_animation_iframe.style.height = 1780+ "px";
+                    luxury_animation_iframe.style.height = 2000 +'px';
+                }
+                
+                else{
+
+                    latex_animation_iframe.style.height = 1780+ "px";
+                    luxury_animation_iframe.style.height = 1980 +'px';
+                }
+            }
+            
+        </script>
+    </head>
+    <body>
+        <p>Latex With Animations</p>
+        <iframe id="latex_animations" src="Latex_with_animations.html"></iframe>
+        
+        <p>Luxury Firm With Animations</p>
+        <iframe id="luxury_animations" src="Luxury_firm_with_animations.html"></iframe>
+    </body>
+</html>
