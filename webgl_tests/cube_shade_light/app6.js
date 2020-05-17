@@ -247,7 +247,8 @@ glMatrix.mat4.invert(viewMatrix,viewMatrix);
 const normalMatrix = glMatrix.mat4.create();
 
 
-glMatrix.mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
+//glMatrix.mat4.scale(modelMatrix,modelMatrix,[0.5,0.5,0.5]);
+glMatrix.mat4.scale(modelMatrix,modelMatrix,[0.4,0.4,0.4]);
 
 function animate() {
     requestAnimationFrame(animate);
