@@ -1,0 +1,72 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background-image: url("rocks-1246668_1920.jpg");
+  background-blend-mode: multiply;
+  background-color: rgb(27, 27, 27);
+}
+
+div {
+  display: block;
+  position: absolute;
+  padding-left: 40px;
+  width: 50%;
+  float: left;
+}
+
+h1 {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin: 10px;
+  margin-top: 25%;
+  padding: 10px;
+  font-size: 3em;
+  color: white;
+
+  text-align: center;
+  z-index: 2;
+}
+
+p {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin: 10px;
+  padding: 10px;
+  width: 100%;
+  font-size: x-large;
+  color: white;
+  z-index: 2;
+  text-align: center;
+}
+
+#c {
+  width: 100%;
+  float: left;
+  height: 100%;
+  display: block;
+  z-index: 3;
+}
+
+.button-green {
+  color: #fff !important;
+  background-color: #02be6e !important;
+}
+.pure-button {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 100%;
+  padding: 0.5em 1em;
+  color: #444;
+  color: rgba(0, 0, 0, 0.8);
+  border: 0 transparent;
+  background-color: #e6e6e6;
+  text-decoration: none;
+  border-radius: 2px;
+  text-align: center;
+  padding: 10px 22px;
+  text-decoration: none !important;
+  border-radius: 50px !important;
+}

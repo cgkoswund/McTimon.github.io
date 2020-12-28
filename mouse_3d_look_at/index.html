@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse look At</title>
+    <link rel="stylesheet" href="mystyle.css">
+    <script>
+        function darken(elem){
+            elem.style.opacity = 0.5;
+        }
+
+        function restore(elem){
+            elem.style.opacity = 1;
+        }
+    </script>
+</head>
+<body>
+    <div class='backText'>
+        <h1>OTTOMAN STOOL</h1>
+        <p>
+            Lorem ipsum dolor sit amet, 
+            consec tetur adip iscing elit. 
+            Sed orci nunc, laoreet imper diet 
+            sagittis at, faci lisis a arcu. 
+        <br />
+        <br />
+        
+        </p>
+        <p style="margin:20px 0 35px">
+            <span style="font-size:20px;line-height:18px" class="pure-button button-green attribution-donate ua-donation-attribution" onmousedown="darken(this)" onmouseup="restore(this)">$ Purchase</span>
+            </p>
+        
+    </div>
+    <canvas id="c"></canvas>
+    <script src="index.js" type="module"></script>
+</body>
+</html>
