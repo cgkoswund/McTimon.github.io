@@ -1,0 +1,155 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.3.48",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "4c4b3605"
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                0,
+                0,
+                0
+            ],
+            "name" : "4c4b3605",
+            "normalTexture" : {
+                "index" : 0,
+                "scale" : 1.5,
+                "texCoord" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1,
+                    "texCoord" : 0
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 2,
+                    "texCoord" : 0
+                }
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Cube.026",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "source" : 0
+        },
+        {
+            "source" : 1
+        },
+        {
+            "source" : 2
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "4c4b3605_Normal",
+            "uri" : "textures/4c4b3605_Normal.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "4c4b3605_BaseColor-4c4b3605_Opacity",
+            "uri" : "textures/4c4b3605_BaseColor-4c4b3605_Opacity.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "4c4b3605_Metalness-4c4b3605_Roughness",
+            "uri" : "textures/4c4b3605_Metalness-4c4b3605_Roughness.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 7523,
+            "max" : [
+                0.4194577634334564,
+                0.5328980684280396,
+                0.2934207022190094
+            ],
+            "min" : [
+                -0.41884344816207886,
+                -0.00010187401494476944,
+                -0.290579229593277
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 7523,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 7523,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 40926,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 90276,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 90276,
+            "byteOffset" : 90276
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 60184,
+            "byteOffset" : 180552
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 81852,
+            "byteOffset" : 240736
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 322588,
+            "uri" : "4c4b3605.bin"
+        }
+    ]
+}

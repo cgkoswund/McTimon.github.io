@@ -1,6 +1,21 @@
 import * as THREE from './three.module.js';
 //import {OrbitControls} from './OrbitControls.js';
 import {GLTFLoader} from './GLTFLoader.js';
+import { EXRLoader } from './EXRLoader.js';
+
+const params = {
+  envMap: 'PNG',
+  roughness: 0.0,
+  metalness: 0.0,
+  exposure: 1.0,
+  debug: false,
+};
+
+let container, stats;
+let camera, scene, renderer, controls;
+let torusMesh, planeMesh;
+let pngCubeRenderTarget, exrCubeRenderTarget;
+let pngBackground, exrBackground;
 
 function main() {
     const canvas = document.querySelector('#c');
@@ -8,7 +23,48 @@ function main() {
         canvas,
         alpha: true
     });
-  //it's true
+    
+
+    let material = new THREE.MeshStandardMaterial( {
+      metalness: params.roughness,
+      roughness: params.metalness,
+      envMapIntensity: 1.0
+    } );
+
+//////////////////////////////
+    THREE.DefaultLoadingManager.onLoad = function ( ) {
+
+      pmremGenerator.dispose();
+
+    };
+
+    new EXRLoader()
+      .setDataType( THREE.UnsignedByteType )
+      .load( './textures/piz_compressed.exr', function ( texture ) {
+
+        exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+        exrBackground = exrCubeRenderTarget.texture;
+
+        texture.dispose();
+
+      } );
+
+    new THREE.TextureLoader().load( './textures/equirectangular.png', function ( texture ) {
+
+      texture.encoding = THREE.sRGBEncoding;
+
+      pngCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+
+      pngBackground = pngCubeRenderTarget.texture;
+
+      texture.dispose();
+
+    } );
+
+    const pmremGenerator = new THREE.PMREMGenerator( renderer );
+    pmremGenerator.compileEquirectangularShader();
+/////////////////////////////
+
     const fov = 45;
     const aspect = 2;  // the canvas default
     const near = 0.1;
@@ -21,28 +77,28 @@ function main() {
     const scene = new THREE.Scene();
     // scene.background = new THREE.Color('white');
 
-    {
-        const hlight = new THREE.AmbientLight (0x9090a0, 7);
-        scene.add(hlight);
-    }
+    // {
+    //     const hlight = new THREE.AmbientLight (0x9090a0, 15);
+    //     scene.add(hlight);
+    // }
   
-    {
-      const skyColor = 0xB1E1FF;  // light blue
-      const groundColor = 0xB97A20;  // brownish orange
-      const intensity = 12;
-      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-      scene.add(light);
-    }
+    // {
+    //   const skyColor = 0xB1E1FF;  // light blue
+    //   const groundColor = 0xB97A20;  // brownish orange
+    //   const intensity = 12;
+    //   const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    //   scene.add(light);
+    // }
   
 
-    {
-      const color = 0xFFFFFF;
-      const intensity = 1.3;
-      const light = new THREE.DirectionalLight(color, intensity);
-      light.position.set(5, 10, 20);
-      scene.add(light);
-      scene.add(light.target);
-    }
+    // {
+    //   const color = 0xFFFFFF;
+    //   const intensity = 1.3;
+    //   const light = new THREE.DirectionalLight(color, intensity);
+    //   light.position.set(5, 10, 20);
+    //   scene.add(light);
+    //   scene.add(light.target);
+    // }
     
     let stool;
     // function dumpObject(obj, lines = [], isLast = true, prefix = '') {
@@ -120,8 +176,8 @@ function main() {
          * 
          */
 
-         const xAngleDegreeLimit = 30;
-         const yAngleDegreeLimit = 30;
+         const xAngleDegreeLimit = 60;
+         const yAngleDegreeLimit = 60;
          const speed=0.05;
 
          let xAxisTransform = (2*pointerX - highestX)/highestX;
@@ -136,6 +192,22 @@ function main() {
 
     }
     function render() {
+
+
+      let newEnvMap;// = torusMesh.material.envMap;
+				let background = scene.background;
+
+				switch ( params.envMap ) {
+
+					case 'EXR':
+						newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
+						background = exrBackground;
+						break;
+					case 'PNG':
+						newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
+						background = pngBackground;
+            break;
+        }
 
         if(stool){
             // console.log(`RENDERING!!! ${stool.rotation.y}`);

@@ -1,0 +1,128 @@
+#controls {
+  background-color: rgba(58, 58, 58, 0.8);
+  padding: 10px;
+  width: 20%;
+  position: absolute;
+  left: 0;
+  z-index: 1;
+}
+
+#body_click {
+  height: 98vh;
+  width: 100%;
+  display: block;
+}
+
+.body {
+  margin: 0;
+  background-color: rgb(206, 206, 206);
+  color: #fff;
+  font-family: Monospace;
+  font-size: 13px;
+  line-height: 24px;
+  overscroll-behavior: none;
+  position: relative;
+}
+
+body {
+  margin: 0;
+  background-color: rgb(206, 206, 206);
+}
+
+.canvas_holder {
+  position: absolute;
+  width: 80%;
+  right: 0;
+  z-index: 2;
+}
+
+.colour_picker_active {
+  width: 0px;
+  height: 0px;
+  opacity: 0;
+  position: absolute;
+}
+
+.colour_picker {
+  /* width: 0px;
+  height: 0px;
+  opacity: 0; */
+  position: absolute;
+  left: 10px;
+  top: 80px;
+  z-index: 1;
+}
+
+.colour_box {
+  width: 50px;
+  height: 20px;
+  border: 1px solid;
+  display: block;
+  border-radius: 8px;
+  position: relative;
+}
+
+#top_colour_button {
+  background-color: rgb(128, 0, 0);
+}
+
+#mid_colour_button {
+  background-color: rgb(0, 128, 0);
+}
+
+#bottom_colour_button {
+  background-color: rgb(0, 0, 128);
+}
+
+#legs_colour_button {
+  background-color: rgb(0, 128, 128);
+}
+
+a {
+  color: #ff0;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+/* 
+- Difference between functions and events
+- New Blueprint Nodes
+    -Sequence node
+    -Gate node
+    -Do Once node
+    -Do N node
+    
+- New data type: Arrays & array helper nodes
+    -ADD node
+    -INSERT node
+    -GET node
+    -LENGTH node
+
+- how to iterate through arrays
+
+-Collisions deep dive:
+    -Simple collisions
+    -complex collision
+    -how to auto-generate collider mesh from static mesh
+    -how to add a custom modeled collider mesh
+    -some common collision problems n how to fix them
+    -new event: "on Component Hit"
+    -Collision boundaries
+    -Difference between "On Actor Begin Overlap" and "On component begin Overlap"
+    -Difference between "sweep" and "teleport"
+
+-Blueprints communication: how to let different blueprints talk to one another <3 :)
+    -Direct communication
+    -Event dispatchers
+    -Blueprint interfacing (we couldn't complete this bcos of time)
+    -Blueprint casting (we're already familiar with this lol)
+
+-Sneak peak/ simple way to create explosions on collision!  */

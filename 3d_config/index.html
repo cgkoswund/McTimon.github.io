@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tim's 3D configurator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body id="bg">
+    <div id="body_click" class='body'>
+        <div id="controls">
+            <p>Top Cushion 
+                <span id="top_colour_button" class="colour_box"> 
+                    <div id="top_colour_picker" class="colour_picker"></div>
+                </span>
+            </p>
+            <p>Mid Cushion  
+                <span id="mid_colour_button" class="colour_box"> 
+                    <div id="mid_colour_picker" class="colour_picker"></div>
+                </span>
+            </p>
+            <p>Bottom Cushion  
+                <span id="bottom_colour_button" class="colour_box"> 
+                    <div id="bottom_colour_picker" class="colour_picker"></div>
+                </span>
+            </p>
+            <p>Legs  
+                <span id="legs_colour_button" class="colour_box"> 
+                    <div id="legs_colour_picker" class="colour_picker"></div>
+                </span>
+            </p>
+        </div>
+        <div class="canvas_holder">
+            <canvas id="c"></canvas>
+        </div>
+    </div>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
