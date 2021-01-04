@@ -2,34 +2,31 @@ import * as THREE from './three.module.js';
 //import {OrbitControls} from './OrbitControls.js';
 import {GLTFLoader} from './GLTFLoader.js';
 import { EXRLoader } from './EXRLoader.js';
+import { RGBELoader } from './RGBELoader.js';
+import { RoughnessMipmapper } from './RoughnessMipmapper.js';
 
 const params = {
-  envMap: 'PNG',
+  envMap: 'EXR',
   roughness: 0.0,
   metalness: 0.0,
-  exposure: 1.0,
+  exposure: 5.0,
   debug: false,
 };
 
-let container, stats;
-let camera, scene, renderer, controls;
-let torusMesh, planeMesh;
-let pngCubeRenderTarget, exrCubeRenderTarget;
-let pngBackground, exrBackground;
+let canvas, stats;
+let camera, sceneR, renderer, controls;
+// let torusMesh, planeMesh;
+// let pngCubeRenderTarget, exrCubeRenderTarget;
+// let pngBackground, exrBackground;
+let topStool;
+
 
 function main() {
-    const canvas = document.querySelector('#c');
-    const renderer = new THREE.WebGLRenderer({
+    canvas = document.querySelector('#c');
+    renderer = new THREE.WebGLRenderer({
         canvas,
         alpha: true
     });
-    
-
-    let material = new THREE.MeshStandardMaterial( {
-      metalness: params.roughness,
-      roughness: params.metalness,
-      envMapIntensity: 1.0
-    } );
 
 //////////////////////////////
     THREE.DefaultLoadingManager.onLoad = function ( ) {
@@ -38,31 +35,64 @@ function main() {
 
     };
 
-    new EXRLoader()
-      .setDataType( THREE.UnsignedByteType )
-      .load( './textures/piz_compressed.exr', function ( texture ) {
+    
+sceneR = new THREE.Scene();
 
-        exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
-        exrBackground = exrCubeRenderTarget.texture;
+    new RGBELoader()
+        .setDataType( THREE.UnsignedByteType )
+        .setPath( 'textures/' )
+        .load( 'royal_esplanade_1k.hdr', function ( texture ) {
 
-        texture.dispose();
+            const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 
-      } );
+            // scene.background = envMap;
+            sceneR.environment = envMap;
 
-    new THREE.TextureLoader().load( './textures/equirectangular.png', function ( texture ) {
+            texture.dispose();
+            pmremGenerator.dispose();
 
-      texture.encoding = THREE.sRGBEncoding;
+            render();
 
-      pngCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+            // model
 
-      pngBackground = pngCubeRenderTarget.texture;
+            // use of RoughnessMipmapper is optional
+            const roughnessMipmapper = new RoughnessMipmapper( renderer );
 
-      texture.dispose();
+            const loader = new GLTFLoader().setPath( 'models/' );
+            loader.load( '4c4b3605.gltf', function ( gltf ) {
 
-    } );
+                gltf.scene.traverse( function ( child ) {
+
+                    if ( child.isMesh ) {
+                        // TOFIX RoughnessMipmapper seems to be broken with WebGL 2.0
+                        // roughnessMipmapper.generateMipmaps( child.material );
+                        topStool = child;
+                        sceneR.add( topStool );
+                    }
+
+                } );
+
+                
+
+                roughnessMipmapper.dispose();
+
+                render();
+
+            } );
+
+
+        } );
+
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( 0.78*window.innerWidth, window.innerHeight );
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    renderer.outputEncoding = THREE.sRGBEncoding;
 
     const pmremGenerator = new THREE.PMREMGenerator( renderer );
     pmremGenerator.compileEquirectangularShader();
+
+
 /////////////////////////////
 
     const fov = 45;
@@ -72,70 +102,7 @@ function main() {
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(-0.4, 0.5, 1.7);
     camera.rotation.x = -0.20;
-  
 
-    const scene = new THREE.Scene();
-    // scene.background = new THREE.Color('white');
-
-    // {
-    //     const hlight = new THREE.AmbientLight (0x9090a0, 15);
-    //     scene.add(hlight);
-    // }
-  
-    // {
-    //   const skyColor = 0xB1E1FF;  // light blue
-    //   const groundColor = 0xB97A20;  // brownish orange
-    //   const intensity = 12;
-    //   const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    //   scene.add(light);
-    // }
-  
-
-    // {
-    //   const color = 0xFFFFFF;
-    //   const intensity = 1.3;
-    //   const light = new THREE.DirectionalLight(color, intensity);
-    //   light.position.set(5, 10, 20);
-    //   scene.add(light);
-    //   scene.add(light.target);
-    // }
-    
-    let stool;
-    // function dumpObject(obj, lines = [], isLast = true, prefix = '') {
-    //     const localPrefix = isLast ? '└─' : '├─';
-    //     lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
-    //     const newPrefix = prefix + (isLast ? '  ' : '│ ');
-    //     const lastNdx = obj.children.length - 1;
-    //     obj.children.forEach((child, ndx) => {
-    //       const isLast = ndx === lastNdx;
-    //       dumpObject(child, lines, isLast, newPrefix);
-    //     });
-    //     return lines;
-    //   }
-
-    {
-      const gltfLoader = new GLTFLoader();
-      gltfLoader.load('./models/4c4b3605.gltf', (gltf) => {
-        const root = gltf.scene;
-        scene.add(root);
-  
-        // compute the box that contains all the stuff
-        // from root and below
-        const box = new THREE.Box3().setFromObject(root);
-  
-        // const boxSize = box.getSize(new THREE.Vector3()).length();
-        // const boxCenter = box.getCenter(new THREE.Vector3());
-
-        stool = root.getObjectByName('4c4b3605');
-
-        // console.log(dumpObject(root).join('\n'));
-        // if(!stool)console.log('YIKES!!!');
-        // else console.log(stool);
-        // return root;
-      });
-    }
-
-    
     let highestX; 
     let highestY;
     function resizeRendererToDisplaySize(renderer) {
@@ -153,7 +120,6 @@ function main() {
     let pointerX = 5;
     let pointerY = 6;
     window.addEventListener('mousemove', function(e){
-        // console.log(e);
         pointerX = e.clientX;
         pointerY = e.clientY;
     });
@@ -161,20 +127,7 @@ function main() {
     let xAngleIncrement;
     let yAngleIncrement;
     function lookAtMouse(){
-        /**
-         * y-angle-degree-limit: 30
-         * y-angle-limit: (Math.PI*y-axis)/180
-         * x-angle-degree-limit: -30 to 30
-         * x-angle-limit: (Math.PI*x-axis)/180
-         * 
-         * x-axis transform: mouse (2*pointerX-maxX)/maxX
-         * y-axis transform: ((maxY-2pointerY)/maxY
-         * 
-         * x-angle target = x-angle-limit*y-axis-transform
-         * y-angle target = y-angle-limit*x-axis-transform
-         * 
-         * 
-         */
+
 
          const xAngleDegreeLimit = 60;
          const yAngleDegreeLimit = 60;
@@ -186,34 +139,32 @@ function main() {
          let xAngleTarget = (Math.PI/180)*xAngleDegreeLimit*yAxisTransform;
          let yAngleTarget = (Math.PI/180)*yAngleDegreeLimit*xAxisTransform;
 
-         xAngleIncrement = speed * (xAngleTarget - stool.rotation.x);
-         yAngleIncrement = speed * (yAngleTarget - stool.rotation.y);
+         xAngleIncrement = speed * (xAngleTarget - topStool.rotation.x);
+         yAngleIncrement = speed * (yAngleTarget - topStool.rotation.y);
 
 
     }
     function render() {
 
 
-      let newEnvMap;// = torusMesh.material.envMap;
-				let background = scene.background;
+      // let newEnvMap;
 
-				switch ( params.envMap ) {
+			// 	switch ( params.envMap ) {
 
-					case 'EXR':
-						newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
-						background = exrBackground;
-						break;
-					case 'PNG':
-						newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
-						background = pngBackground;
-            break;
-        }
+			// 		case 'EXR':
+			// 			newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
+			// 			scene.environment = exrBackground;
+			// 			break;
+			// 		case 'PNG':
+			// 			newEnvMap = pngCubeRenderTarget ? pngCubeRenderTarget.texture : null;
+			// 			scene.environment = pngBackground;
+      //       break;
+      //   }
 
-        if(stool){
-            // console.log(`RENDERING!!! ${stool.rotation.y}`);
+        if(topStool){
             lookAtMouse();
-            stool.rotation.y += yAngleIncrement;
-            stool.rotation.x += xAngleIncrement;
+            topStool.rotation.y += yAngleIncrement;
+            topStool.rotation.x += xAngleIncrement;
             canvas.zIndex = 4;
     }
         // console.log(myMesh.position.x);
@@ -224,7 +175,7 @@ function main() {
         camera.updateProjectionMatrix();
       }
   
-      renderer.render(scene, camera);
+      renderer.render(sceneR, camera);
       requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
