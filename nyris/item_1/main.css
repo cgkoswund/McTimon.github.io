@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  background-color: rgb(245, 245, 245);
+  color: rgb(148, 143, 143);
+  font-family: Monospace;
+  font-size: 13px;
+  line-height: 24px;
+  overscroll-behavior: none;
+}
+
+canvas {
+  display: block;
+  position: ABSOLUTE;
+}
