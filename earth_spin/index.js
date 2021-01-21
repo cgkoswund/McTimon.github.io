@@ -99,7 +99,7 @@
                     scrollBuffer = currentScroll;
                 };
                 renderer.render(scene, camera);
-                console.log(`Height: ${window.innerHeight}, scroll: ${currentScroll}, aspect: ${aspect}`);
+                // console.log(`Height: ${window.innerHeight}, scroll: ${currentScroll}, aspect: ${aspect}`);
             
 
             renderer.render( scene, camera );
