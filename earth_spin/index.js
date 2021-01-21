@@ -111,7 +111,7 @@ function zoom(event) {
     currentScroll += event.deltaY * -0.01;
   
     // Restrict scale
-    currentScroll = Math.min(Math.max(.12, currentScroll), 50.1);
+    currentScroll = Math.min(Math.max(.12, currentScroll), 5.1);
   }
   
   el.onwheel = zoom;
