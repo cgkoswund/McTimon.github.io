@@ -95,7 +95,7 @@
         function render() {
             scrollDelta = currentScroll - scrollBuffer;
             if(browserName === "Chrome") {scrollDelta *= 0.03;}
-            console.log(browserName+"udd");
+            console.log(browserName+"ncc");
                 requestAnimationFrame(render);
                 var delta = clock.getDelta();
                 if (mixer != null) {
