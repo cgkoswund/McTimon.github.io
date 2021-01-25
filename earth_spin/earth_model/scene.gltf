@@ -367,9 +367,9 @@
         {
             "bufferView" : 17,
             "componentType" : 5126,
-            "count" : 550,
+            "count" : 700,
             "max" : [
-                22.916666666666668
+                29.166666666666668
             ],
             "min" : [
                 0.041666666666666664
@@ -379,13 +379,13 @@
         {
             "bufferView" : 18,
             "componentType" : 5126,
-            "count" : 550,
+            "count" : 700,
             "type" : "VEC3"
         },
         {
             "bufferView" : 19,
             "componentType" : 5126,
-            "count" : 550,
+            "count" : 700,
             "type" : "VEC4"
         }
     ],
@@ -477,23 +477,23 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 2200,
+            "byteLength" : 2800,
             "byteOffset" : 26792
         },
         {
             "buffer" : 0,
-            "byteLength" : 6600,
-            "byteOffset" : 28992
+            "byteLength" : 8400,
+            "byteOffset" : 29592
         },
         {
             "buffer" : 0,
-            "byteLength" : 8800,
-            "byteOffset" : 35592
+            "byteLength" : 11200,
+            "byteOffset" : 37992
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 44392,
+            "byteLength" : 49192,
             "uri" : "sphere n cubes.bin"
         }
     ]
