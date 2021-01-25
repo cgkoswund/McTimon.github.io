@@ -94,7 +94,7 @@
 
         function render() {
             scrollDelta = currentScroll - scrollBuffer;
-            if(browserName === "Chrome") {scrollDelta *= 2;}
+            if(browserName === "Chrome") {scrollDelta *= 0.03;}
             console.log(browserName+"udd");
                 requestAnimationFrame(render);
                 var delta = clock.getDelta();
@@ -116,6 +116,7 @@ function zoom(event) {
   
     // Restrict scale
     currentScroll = Math.min(Math.max(.12, currentScroll), 5.1);
+    if(browserName === "Chrome") {currentScroll = Math.min(Math.max(.12, currentScroll), (5.1*(1/0.03)) );}
   }
   
   el.onwheel = zoom;
