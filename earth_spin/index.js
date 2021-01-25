@@ -94,7 +94,7 @@
 
         function render() {
             scrollDelta = currentScroll - scrollBuffer;
-            if(browserName === "Chrome") {scrollDelta *= 0.03; console.log("this is chrome");}
+            if(browserName === "Chrome") {scrollDelta *= 0.3;}
             console.log(browserName);
                 requestAnimationFrame(render);
                 var delta = clock.getDelta();
