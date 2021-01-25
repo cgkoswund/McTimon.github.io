@@ -2,6 +2,7 @@
         import { GLTFLoader } from './GLTFLoader.js';
         import { RGBELoader } from './RGBELoader.js';
         import { RoughnessMipmapper } from './RoughnessMipmapper.js';
+        import Bowser from './browser_detect_library/bowser.js';
 
         let camera, scene, renderer, mixer, aspect;
         let clock = new THREE.Clock();
@@ -11,6 +12,8 @@
         let currentScroll = 0;
         let scrollDelta = 0; 
         let el;
+
+        const browserName = Bowser.parse(window.navigator.userAgent).browser.name;
 
         init();
         render();
@@ -91,6 +94,7 @@
 
         function render() {
             scrollDelta = currentScroll - scrollBuffer;
+            if(browserName === "Chrome") scrollDelta *= 0.03;
 
                 requestAnimationFrame(render);
                 var delta = clock.getDelta();
@@ -107,7 +111,7 @@
         }
 
 function zoom(event) {
-    event.preventDefault();
+    // event.preventDefault();
     currentScroll += event.deltaY * -0.01;
   
     // Restrict scale
