@@ -6,12 +6,13 @@
 
         let camera, scene, renderer, mixer, aspect;
         let clock = new THREE.Clock();
-        let model;
+        let model, mainScene, frames;
 
         let scrollBuffer = 0; 
         let currentScroll = 0;
         let scrollDelta = 0; 
         let el;
+        let elapsedTime = 0;
 
         const browserName = Bowser.parse(window.navigator.userAgent).browser.name;
 
@@ -50,7 +51,10 @@
                     loader.load( 'scene.gltf', function ( gltf ) {
 
                         model = gltf.scene;
+                        mainScene = gltf;
+                        frames = mainScene.animations[0].tracks[0].times;
                         scene.add(model);
+                        console.log(mainScene);
 
                         mixer = new THREE.AnimationMixer(model);
                         mixer.clipAction(gltf.animations[0]).play();
@@ -95,15 +99,20 @@
         function render() {
             scrollDelta = currentScroll - scrollBuffer;
             if(browserName === "Chrome") {scrollDelta *= 0.03;}
-//            console.log(browserName+"trg");
                 requestAnimationFrame(render);
                 var delta = clock.getDelta();
                 if (mixer != null) {
                     mixer.update(delta*scrollDelta*300);
                     scrollBuffer = currentScroll;
+                    elapsedTime = elapsedTime + delta*scrollDelta*300;
+                    console.log(elapsedTime);
+
+                    console.log(mixer.time)
                 };
+
                 renderer.render(scene, camera);
                 // console.log(`Height: ${window.innerHeight}, scroll: ${currentScroll}, aspect: ${aspect}`);
+                // if(mainScene)console.log(mainScene.animations);
             
 
             renderer.render( scene, camera );
