@@ -175,6 +175,7 @@
 
 //event functions
 function zoom(event) {
+    event.preventDefault();
     currentScroll += event.deltaY * -0.01;
   }
   
