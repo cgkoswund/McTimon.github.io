@@ -25,6 +25,7 @@
 
         //brower detect for balancing scroll speed
         const browserName = Bowser.parse(window.navigator.userAgent).browser.name;
+        // console.log(browserName);
 
         //overall scroll speed factor
         const scrollSpeed = 10;
@@ -113,7 +114,7 @@
         function render() {// refresh view/re-render canvas
 
             scrollDelta = currentScroll - scrollBuffer;
-            if(browserName === "Chrome") {scrollDelta *= 0.03;}
+            if(browserName === "Chrome" || browserName === "Microsoft Edge") {scrollDelta *= 0.03;}
             requestAnimationFrame(render);
             var delta = clock.getDelta();
 
