@@ -115,6 +115,8 @@
 
             scrollDelta = currentScroll - scrollBuffer;
             if(browserName === "Chrome" || browserName === "Microsoft Edge") {scrollDelta *= 0.03;}
+            if(browserName === "Firefox") {scrollDelta *= 0.06;}
+            else {scrollDelta *= 0.045;}
             requestAnimationFrame(render);
             var delta = clock.getDelta();
 
