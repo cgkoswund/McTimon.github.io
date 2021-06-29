@@ -66,7 +66,8 @@ function main() {
 
   const sunMaterial = new THREE.MeshPhongMaterial({emissive: 0xFFFF00});
   const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
-  sunMesh.scale.set(0.5, 0.5, 0.5);
+  // sunMesh.scale.set(0.5, 0.5, 0.5);
+  sunMesh.scale.set(5, 5, 5);
   scene.add(sunMesh);
   objects.push(sunMesh);
 
