@@ -64,17 +64,18 @@ function main() {
   const sphereGeometry = new THREE.SphereBufferGeometry(
       radius, widthSegments, heightSegments);
 
-  const sunMaterial = new THREE.MeshPhongMaterial({emissive: 0xFFFF00});
+  const sunMaterial = new THREE.MeshPhongMaterial({emissive: 0x999900});
   const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
   // sunMesh.scale.set(0.5, 0.5, 0.5);
   sunMesh.scale.set(5, 5, 5);
   scene.add(sunMesh);
   objects.push(sunMesh);
 
-  const planetMaterial = new THREE.MeshPhongMaterial({emissive: 0x00FF00});
+  const planetMaterial = new THREE.MeshPhongMaterial();
   const planetMesh = new THREE.Mesh(sphereGeometry, planetMaterial);
   // sunMesh.scale.set(0.5, 0.5, 0.5);
-  planetMesh.scale.set(2, 2, 2);
+  planetMesh.scale.set(0.5, 0.5, 0.5);
+  planetMesh.position.set(2,0,2);
   sunMesh.add(planetMesh);
   objects.push(planetMesh);
 
