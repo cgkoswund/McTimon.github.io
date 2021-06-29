@@ -71,6 +71,13 @@ function main() {
   scene.add(sunMesh);
   objects.push(sunMesh);
 
+  const planetMaterial = new THREE.MeshPhongMaterial({emissive: 0x00FF00});
+  const planetMesh = new THREE.Mesh(sphereGeometry, planetMaterial);
+  // sunMesh.scale.set(0.5, 0.5, 0.5);
+  planetMesh.scale.set(2, 2, 2);
+  sunMesh.add(planetMesh);
+  objects.push(planetMesh);
+
 //   function makeAxisGrid(node, label, units){
 //     const helper = new AxisGridHelper(node, units);
     // gui.add(helper, 'visible').name(label);
