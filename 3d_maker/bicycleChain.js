@@ -1,6 +1,9 @@
 import * as THREE from './three.module.js';
+import { OrbitControls } from './OrbitControls.js';
 import { Curve, TetrahedronGeometry } from "./three.module.js";
 
+
+let camera;
 function main(){
 
 const canvas = document.querySelector('#c');
@@ -8,16 +11,11 @@ const renderer = new THREE.WebGLRenderer({canvas: canvas});
 renderer.setClearColor(0xAAAAAA);
 renderer.shadowMap.enabled = true;
 
-function makeCamera(fov = 40){
-    const aspect = 2;
-    const zNear = 0.1;
-    const zFar = 1000;
-    return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-}
-
-const camera = makeCamera();
+camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
+camera.position.set( - 1.1, 0.9, 0.5 );
 camera.position.set(8, 4, 10).multiplyScalar(3);
 camera.lookAt(0,0,0);
+
 
 const scene = new THREE.Scene();
 
@@ -57,7 +55,7 @@ const carHeight = 1;
 const carLength = 8;
 
 const tank = new THREE.Object3D();
-scene.add(tank);
+// scene.add(tank);
 
 const bodyGeometry = new THREE.BoxBufferGeometry(carWidth, carHeight, carLength);
 const bodyMaterial = new THREE.MeshPhongMaterial({color: 0x6688AA});
@@ -105,21 +103,6 @@ const wheelMeshes = wheelPositions.map((position) => {
     return mesh;
 });
 
-// const domeRadius = 2;
-// const domeWidthSubdivisions = 12;
-// const domeHeightSubdivisions = 12;
-// const domePhiStart = 0;
-// const domePhiEnd = Math.PI * 2;
-// const domeThetaStart = 0;
-// const domeThetaEnd = Math.PI/2;
-// const domeGeometry = new THREE.SphereBufferGeometry(
-//     domeRadius, domeWidthSubdivisions, domeHeightSubdivisions,
-//     domePhiStart, domePhiEnd, domeThetaStart, domeThetaEnd
-// );
-// const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial);
-// domeMesh.castShadow = true;
-// bodyMesh.add(domeMesh);
-// domeMesh.position.y = .5;
 
 const turretWidth = .1;
 const turretHeight = .1;
@@ -136,35 +119,40 @@ turretMesh.position.z = turretLength * .5;
 turretPivot.add(turretMesh);
 bodyMesh.add(turretPivot);
 
-// const turretCamera = makeCamera();
-// turretCamera.position.y = .75 * .2;
-// turretMesh.add(turretCamera);
+let noOfLinks = 22;
+let linkMeshes = [];
 
-const targetGeometry = new THREE.SphereBufferGeometry(.5,6,3);
-const targetMaterial = new THREE.MeshPhongMaterial({
-    color: 0x00FF00, 
-    flatShading:true
-});
-const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
-const targetOrbit = new THREE.Object3D();
-const targetElevation = new THREE.Object3D();
-const targetBob = new THREE.Object3D();
-targetMesh.castShadow = true;
-scene.add(targetOrbit);
+for(let i = 0; i<noOfLinks;i++){
+    linkMeshes.push(tank.clone());
+    scene.add(linkMeshes[i]);
+}
 
-targetOrbit.add(targetElevation);
-targetElevation.position.z = carLength * 2;
-targetElevation.position.y = 8;
-targetElevation.add(targetBob);
-targetBob.add(targetMesh);
 
-const targetCamera = makeCamera();
-const targetCameraPivot = new THREE.Object3D();
-targetCamera.position.y = 1;
-targetCamera.position.z = -2;
-targetCamera.rotation.y = Math.PI;
-targetBob.add(targetCameraPivot);
-targetCameraPivot.add(targetCamera);
+// const targetGeometry = new THREE.SphereBufferGeometry(.5,6,3);
+// const targetMaterial = new THREE.MeshPhongMaterial({
+//     color: 0x00FF00, 
+//     flatShading:true
+// });
+// const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
+// const targetOrbit = new THREE.Object3D();
+// const targetElevation = new THREE.Object3D();
+// const targetBob = new THREE.Object3D();
+// targetMesh.castShadow = true;
+// scene.add(targetOrbit);
+
+// targetOrbit.add(targetElevation);
+// targetElevation.position.z = carLength * 2;
+// targetElevation.position.y = 8;
+// targetElevation.add(targetBob);
+// targetBob.add(targetMesh);
+
+// const targetCamera = makeCamera();
+// const targetCameraPivot = new THREE.Object3D();
+// targetCamera.position.y = 1;
+// targetCamera.position.z = -2;
+// targetCamera.rotation.y = Math.PI;
+// targetBob.add(targetCameraPivot);
+// targetCameraPivot.add(targetCamera);
 
 //spline "bezier points"
 const arrayPoints = [
@@ -185,14 +173,16 @@ const radiusL = 2;//RL
 const radiusR = 5;//Rr
 const sprocketCentreInterval= radiusL + radiusR + 5;  //d
 const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
-let interval = (Math.PI-2*aMax)/25; 
+const curveResolution = 25;//number of curve "handles"
+let interval = (Math.PI-2*aMax)/curveResolution; //angle interval for arcs during spline generation
 let aRanger = aMax;
 let chainTheta = 0;
 let xPoint = 0;
 let yPoint = 0;
 
+
 //smaller sprocker points
-for (let i = 0; i < 25; i++){
+for (let i = 0; i < curveResolution; i++){
     
     chainTheta = Math.PI/2 + aRanger + interval*i;
     xPoint = radiusL*Math.cos(chainTheta);
@@ -202,36 +192,33 @@ for (let i = 0; i < 25; i++){
 }
 
 chainTheta = 0;
-interval = (Math.PI+2*aMax)/25; 
-aRanger = 90 - aMax;
+interval = (Math.PI+2*aMax)/curveResolution; 
+aRanger = Math.PI/2 - aMax;
 
 //larger sprocker points
-for (let i = 0; i < 25; i++){
+for (let j = 0; j < curveResolution; j++){
     
-    chainTheta = Math.PI + aRanger + interval*(i-2);
+    chainTheta = Math.PI + aRanger + interval*(j);
     xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
     yPoint = -1*radiusR*Math.sin(chainTheta) - radiusR;
+    // console.log(chainTheta);
 
     arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
 }
 
 arrayGenPoint.push(arrayGenPoint[0]);//append
 
-// for (const i = 0; i < 25; i++){
-//     arrayGenPoint.append
-// }
-
 
 const curve = new THREE.CatmullRomCurve3(arrayPoints);
 const chainCurve = new THREE.CatmullRomCurve3(arrayGenPoint);
 
-// const points = curve.getPoints(50);
-// const geometry = new THREE.BufferGeometry().setFromPoints(points);
-// const material = new THREE.LineBasicMaterial({color:0xff0000});
-// const splineObject =  new THREE.Line(geometry, material);
-// splineObject.rotation.x = Math.PI * .5;
-// splineObject.position.y = 0.05;
-// scene.add(splineObject);
+const points = curve.getPoints(50);
+const geometry = new THREE.BufferGeometry().setFromPoints(points);
+const material = new THREE.LineBasicMaterial({color:0xff0000});
+const splineObject =  new THREE.Line(geometry, material);
+splineObject.rotation.x = Math.PI * .5;
+splineObject.position.y = 0.05;
+scene.add(splineObject);
 
 const chainPoints = chainCurve.getPoints(50);
 const chainGeometry = new THREE.BufferGeometry().setFromPoints(chainPoints);
@@ -241,7 +228,7 @@ chainSplineObject.rotation.x = Math.PI * .5;
 chainSplineObject.position.y = 0.05;
 scene.add(chainSplineObject);
 
-console.log(chainTheta);
+// console.log(chainTheta);
 
 ////Resize canvas according to window size
 function resizeRendererToDisplaySize(renderer){
@@ -255,17 +242,13 @@ function resizeRendererToDisplaySize(renderer){
     return needResize
 }
 
-const targetPosition = new THREE.Vector3( );
-const tankPosition = new THREE.Vector3();
-const tankTarget = new THREE.Vector3();
+// const targetPosition = new THREE.Vector3( );
+// const tankPosition = new THREE.Vector3();
+// const tankTarget = new THREE.Vector3();
 
-const cameras = [
-    {cam: camera, desc: 'detached camera'},
-    // {cam: turretCamera, desc: 'on turret looking at target'},
-    // {cam: targetCamera, desc: 'near target looking at tank'},
-    // {cam: tankCamera, desc: 'above back of tank'},
-    
-];
+
+
+
 
 const infoElem = document.querySelector('#info');
 
@@ -275,72 +258,55 @@ function render(time) {
 
     if(resizeRendererToDisplaySize(renderer)){
         const canvas = renderer.domElement;
-        cameras.forEach((cameraInfo) => {
-            const camera = cameraInfo.cam;
+        // cameras.forEach((cameraInfo) => {
+            // const camera = cameraInfo.cam;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
-        });
+        // });
     }
 
-    //move target
-    targetOrbit.rotation.y = time * .27;
-    targetBob.position.y = Math.sin(time * 2) * 4;
-    targetMesh.rotation.x = time * 7;
-    targetMesh.rotation.y = time * 13;
-    targetMaterial.emissive.setHSL(time * 10 % 1, 1, .25);
-    targetMaterial.color.setHSL(time * 10 % 1, 1, .25);
+    // //move target
+    // targetOrbit.rotation.y = time * .27;
+    // targetBob.position.y = Math.sin(time * 2) * 4;
+    // targetMesh.rotation.x = time * 7;
+    // targetMesh.rotation.y = time * 13;
+    // targetMaterial.emissive.setHSL(time * 10 % 1, 1, .25);
+    // targetMaterial.color.setHSL(time * 10 % 1, 1, .25);
 
-    // const tankPosition = new THREE.Vector2();
-    // const tankTarget = new THREE.Vector2();
 
     //////
-
+    let targetXPosition = new THREE.Vector3();
+    let tankXPosition = new THREE.Vector3();
+    let tankXTarget = new THREE.Vector3();
     //move tank
-    const tankTime = time * .05;
-    chainCurve.getPointAt(tankTime % 1, tankPosition);
-    chainCurve.getPointAt((tankTime + 0.01) % 1, tankTarget);
-    tank.position.set(tankPosition.x, tankPosition.z * -1, tankPosition.y);
-    console.log(tankPosition.z);
+    for(let k = 0;k<noOfLinks;k++){
+    let tankXTime = ((time + k*1) * .05);
+    chainCurve.getPointAt(tankXTime % 1, tankXPosition);
+    chainCurve.getPointAt((tankXTime + 0.01) % 1, tankXTarget);
+    linkMeshes[k].position.set(tankXPosition.x, tankXPosition.z * -1, tankXPosition.y);
+    // console.log(tankPosition.z);
     tank.rotation.x=Math.PI;
+    // tank.rotation.z=Math.PI;
+    linkMeshes[k].lookAt(tankXTarget.x, tankXTarget.z *-1, tankXTarget.y);
+    // body2.lookAt(tankTarget.x, tankTarget.z *-1, tankTarget.y);
+    }
+    
+    // const controls = new OrbitControls( camera, renderer.domElement );
+    // controls.addEventListener( 'change', render ); // use if there is no animation loop
+    // controls.minDistance = 2;
+    // controls.maxDistance = 1000;
+    // controls.target.set( 0.1, 0.1, 0.2 );
+    // controls.update();
 
-    tank.lookAt(tankTarget.x, tankTarget.z *-1, tankTarget.y);
-
-
-    // const targetPosition = new THREE.Vector3();
-
-    ///////
-
-    //face turret at target
-    // targetMesh.getWorldPosition(targetPosition);
-    // turretPivot.lookAt(targetPosition);
-
-    //make turretCamera look at target
-    // turretCamera.lookAt(targetPosition);
-
-    //make the targetCameraPivot look at the tank
-    // tank.getWorldPosition(targetPosition);
-    // targetCameraPivot.lookAt(targetPosition);
-
-    // wheelMeshes.forEach((obj) => {
-    //     obj.rotation.x = time * 3;
-
-    // })
-
-
-
-    // const infoElem = document.querySelector('#info');
-
-    // const camera = cameras[time * .25 % cameras.length | 0];
-    const camera = cameras[0];
-    // infoElem.textContent = camera.desc;
-
-    // renderer.render(scene, camera.cam);
-    renderer.render(scene, camera.cam);
+    renderer.render(scene, camera);
 
     requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
+
+
+
 }
 
 main();
