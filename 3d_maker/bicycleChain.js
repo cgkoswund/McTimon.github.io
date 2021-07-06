@@ -1,4 +1,5 @@
 import * as THREE from './three.module.js';
+import { leftGearPoints,rightGearPoints,GearGenerator } from "./gearGenerator.js";
 import { OrbitControls } from './OrbitControls.js';
 import { Curve, TetrahedronGeometry } from "./three.module.js";
 
@@ -50,9 +51,9 @@ groundMesh.rotation.x = Math.PI * -.5;
 groundMesh.receiveShadow = true;
 scene.add(groundMesh);
 
-const carWidth = 0.05;
-const carHeight = 0.05;
-const carLength = 0.4;
+const carWidth = GearGenerator.carWidth
+const carHeight = GearGenerator.carHeight;
+const carLength = GearGenerator.carLength;
 
 const tank = new THREE.Object3D();
 // scene.add(tank);
@@ -65,9 +66,9 @@ bodyMesh.position.y = 0;
 bodyMesh.castShadow = true;
 tank.add(bodyMesh);
 
-const wheelRadius = 0.1;
-const wheelThickness = .05;
-const wheelSegments = 16;
+const wheelRadius = GearGenerator.wheelRadius;
+const wheelThickness = GearGenerator.wheelThickness;
+const wheelSegments = GearGenerator.wheelSegments;
 const wheelGeometry = new THREE.CylinderBufferGeometry(
     wheelRadius, //top rad
     wheelRadius, //bottom rad
@@ -83,8 +84,8 @@ const wheelPositions = [
     [carWidth/2 + wheelThickness/2, - 0*carHeight/2, 0],
 ];
 
-const wheelMeshes = wheelPositions.map((position) => {
-    const mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
+/*const wheelMeshes =*/ wheelPositions.map((position) => {
+    let mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
     mesh.position.set(...position);
     mesh.rotation.z = Math.PI/2;
     mesh.castShadow =  true;
@@ -92,23 +93,49 @@ const wheelMeshes = wheelPositions.map((position) => {
     return mesh;
 });
 
+let radiusL = GearGenerator.radius(42);//RL
+let radiusR = GearGenerator.radius(105);//Rr
+const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
-const turretWidth = .1;
-const turretHeight = .1;
-const turretLength = carLength * .75 * .2;
-const turretGeometry = new THREE.BoxBufferGeometry(
-    turretWidth, turretHeight, turretLength
-);
-const turretMesh = new THREE.Mesh(turretGeometry, bodyMaterial);
-const turretPivot = new THREE.Object3D();
-turretMesh.castShadow = true;
-turretPivot.scale.set(5,5,5);
-turretPivot.position.y = 0;
-turretMesh.position.z = turretLength * .5;
-turretPivot.add(turretMesh);
-bodyMesh.add(turretPivot);
+let shape = new THREE.Shape();
 
-let noOfLinks = 134;
+//small gear (Left) from circle
+let gearParams = [];
+gearParams=leftGearPoints(42,0,0,0);
+shape.moveTo(gearParams[0][2],gearParams[0][3]);
+
+for (let i = 1; i < gearParams.length; i++){
+    shape.quadraticCurveTo(
+        ...gearParams[i]
+        );
+}
+
+const extrudeSettings = GearGenerator.extrudeSettings;
+
+let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+const material = new THREE.MeshPhongMaterial( { color: 0x887755 } );
+let mesh = new THREE.Mesh( geometry, material ) ;
+mesh.position.z = -carWidth/4;
+scene.add( mesh );
+
+//test large gear (Right) from circle
+shape = new THREE.Shape();
+gearParams = [];
+gearParams=rightGearPoints(105,0,0,0);
+shape.moveTo(gearParams[0][2],gearParams[0][3]);
+
+for (let i = 1; i < gearParams.length; i++){
+    shape.quadraticCurveTo(
+        ...gearParams[i]
+        );
+}
+
+geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+mesh = new THREE.Mesh( geometry, material ) ;
+mesh.position.z = -carWidth/4;
+scene.add( mesh );
+
+let noOfLinks = GearGenerator.noOfLinks;
 let linkMeshes = [];
 
 for(let i = 0; i<noOfLinks;i++){
@@ -116,22 +143,18 @@ for(let i = 0; i<noOfLinks;i++){
     scene.add(linkMeshes[i]);
 }
 
-
 const arrayGenPoint = [];
 
-const radiusL = 2;//RL
-const radiusR = 5;//Rr
-const sprocketCentreInterval= radiusL + radiusR + 5;  //d
 const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
-const curveResolution = 10;//number of curve "handles"
+const curveResolution = 15;//number of curve "handles"
 let interval = (Math.PI-2*aMax)/(curveResolution/2); //angle interval for arcs during spline generation
 let aRanger = aMax;
 let chainTheta = 0;
 let xPoint = 0;
 let yPoint = 0;
 
-
-//smaller sprocker points
+////chain points
+//smaller sprocker half points
 for (let i = 0; i < (curveResolution/2); i++){
     
     chainTheta = Math.PI/2 + aRanger + interval*i;
@@ -145,30 +168,18 @@ chainTheta = 0;
 interval = (Math.PI+2*aMax)/(curveResolution/2); 
 aRanger = Math.PI/2 - aMax;
 
-//larger sprocker points
+//larger sprocker half points
 for (let j = 0; j < (curveResolution/2); j++){
-    
     chainTheta = Math.PI + aRanger + interval*(j);
     xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
     yPoint = -1*radiusR*Math.sin(chainTheta) - radiusR;
-    // console.log(chainTheta);
 
     arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
 }
 
 arrayGenPoint.push(arrayGenPoint[0]);//append
 
-
-// const curve = new THREE.CatmullRomCurve3(arrayPoints);
 const chainCurve = new THREE.CatmullRomCurve3(arrayGenPoint);
-
-// const points = curve.getPoints(50);
-// const geometry = new THREE.BufferGeometry().setFromPoints(points);
-// const material = new THREE.LineBasicMaterial({color:0xff0000});
-// const splineObject =  new THREE.Line(geometry, material);
-// splineObject.rotation.x = Math.PI * .5;
-// splineObject.position.y = 0.05;
-// scene.add(splineObject);
 
 const chainPoints = chainCurve.getPoints(curveResolution);
 const chainGeometry = new THREE.BufferGeometry().setFromPoints(chainPoints);
@@ -177,8 +188,6 @@ const chainSplineObject =  new THREE.Line(chainGeometry, chainMaterial);
 chainSplineObject.rotation.x = Math.PI * .5;
 chainSplineObject.position.y = 0.05;
 scene.add(chainSplineObject);
-
-// console.log(chainTheta);
 
 ////Resize canvas according to window size
 function resizeRendererToDisplaySize(renderer){
@@ -192,15 +201,6 @@ function resizeRendererToDisplaySize(renderer){
     return needResize
 }
 
-// const targetPosition = new THREE.Vector3( );
-// const tankPosition = new THREE.Vector3();
-// const tankTarget = new THREE.Vector3();
-
-
-
-
-
-const infoElem = document.querySelector('#info');
 
 function render(time) {
         
@@ -208,17 +208,11 @@ function render(time) {
 
     if(resizeRendererToDisplaySize(renderer)){
         const canvas = renderer.domElement;
-        // cameras.forEach((cameraInfo) => {
-            // const camera = cameraInfo.cam;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
-        // });
     }
 
 
-
-    //////
-    // let targetXPosition = new THREE.Vector3();
     let tankXPosition = new THREE.Vector3();
     let tankXTarget = new THREE.Vector3();
 
@@ -229,7 +223,6 @@ function render(time) {
     chainCurve.getPointAt((tankXTime + 0.01) % 1, tankXTarget);
     linkMeshes[k].position.set(tankXPosition.x, tankXPosition.z * -1, tankXPosition.y);
     tank.rotation.x=Math.PI;
-    // tank.rotation.z=Math.PI;
     linkMeshes[k].lookAt(tankXTarget.x, tankXTarget.z *-1, tankXTarget.y);
     }
     
