@@ -1,5 +1,5 @@
 import * as THREE from './three.module.js';
-import { leftGearPoints,rightGearPoints,GearGenerator } from "./gearGenerator.js";
+import { leftGearPoints,rightGearPoints,GearGenerator } from "./GearGenerator.js";
 import { OrbitControls } from './OrbitControls.js';
 import { Curve, TetrahedronGeometry } from "./three.module.js";
 
