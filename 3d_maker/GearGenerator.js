@@ -1,4 +1,6 @@
 const carWidth = 0.05;
+let leftTeethCount= 15;
+let rightTeethCount= 150;
 
 
 const GearGenerator = {//shared parameters
@@ -25,8 +27,12 @@ const GearGenerator = {//shared parameters
     wheelThickness : .05,
     wheelSegments : 16,
     noOfLinks : 134,
-    radiusRMax: 5
+    radiusRMax: 5,
+    leftTeethCount: leftTeethCount,
+    rightTeethCount: rightTeethCount
 };
+
+let radiusR = GearGenerator.radius(rightTeethCount);
 
 var leftGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight){
     const d = 0;
@@ -39,7 +45,7 @@ let rightGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLi
 
 let gearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d){
 
-    let radiusR = GearGenerator.radiusRMax;
+    // let radiusR = GearGenerator.radiusRMax;
     const steps = 6;
     let handleOffsetScale = 1.15;
     let rad = Math.PI*2/steps;
