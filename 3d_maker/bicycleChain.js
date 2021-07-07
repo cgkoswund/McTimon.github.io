@@ -8,7 +8,7 @@ let camera;
 function main(rearTeethCount,paddleTeethCount){
 
 const canvas = document.querySelector('#c');
-const renderer = new THREE.WebGLRenderer({canvas: canvas});
+const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 renderer.setClearColor(0xAAAAAA);
 renderer.shadowMap.enabled = true;
 
@@ -200,9 +200,10 @@ function resizeRendererToDisplaySize(renderer){
     const canvas = renderer.domElement;
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
+
     const needResize = canvas.width !== width || canvas.height !== height;
     if(needResize){
-        renderer.setSize(width, height, false);
+        renderer.setSize(width*2.2, height*2.2, false);
     }
     return needResize
 }
