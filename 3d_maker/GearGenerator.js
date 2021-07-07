@@ -32,18 +32,18 @@ const GearGenerator = {//shared parameters
     rightTeethCount: rightTeethCount
 };
 
-let radiusR = GearGenerator.radius(rightTeethCount);
+// let radiusR = GearGenerator.radius(rightTeethCount);
 
-var leftGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight){
+var leftGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight,radiusR){
     const d = 0;
-    return gearPoints(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d);
+    return gearPoints(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d,radiusR);
 };
-let rightGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight){
+let rightGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight,radiusR){
     const d = GearGenerator.sprocketCentreInterval;
-    return gearPoints(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d);;
+    return gearPoints(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d,radiusR);;
 };
 
-let gearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d){
+let gearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d,radiusR){
 
     // let radiusR = GearGenerator.radiusRMax;
     const steps = 6;

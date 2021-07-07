@@ -5,7 +5,7 @@ import { Curve, TetrahedronGeometry } from "./three.module.js";
 
 
 let camera;
-function main(){
+function main(rearTeethCount,paddleTeethCount){
 
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas: canvas});
@@ -14,7 +14,7 @@ renderer.shadowMap.enabled = true;
 
 camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
 camera.position.set( - 1.1, 1.9, 20.5 );
-camera.position.set(0, 8, 8).multiplyScalar(3);
+camera.position.set(-8, 18, 12).multiplyScalar(3);
 camera.lookAt(7,10,2);
 
 
@@ -93,8 +93,10 @@ const wheelPositions = [
     return mesh;
 });
 
-let leftGearTeeth = GearGenerator.leftTeethCount;
-let rightGearTeeth = GearGenerator.rightTeethCount;
+// let leftGearTeeth = GearGenerator.leftTeethCount;
+// let rightGearTeeth = GearGenerator.rightTeethCount;
+let leftGearTeeth = rearTeethCount;
+let rightGearTeeth = paddleTeethCount;
 let radiusL = GearGenerator.radius(leftGearTeeth);//RL
 let radiusR = GearGenerator.radius(rightGearTeeth);//Rr
 const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
@@ -103,7 +105,7 @@ let shape = new THREE.Shape();
 
 //small gear (Left) from circle
 let gearParams = [];
-gearParams=leftGearPoints(leftGearTeeth,0,0,0);
+gearParams=leftGearPoints(leftGearTeeth,0,0,0,radiusR);
 shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
 for (let i = 1; i < gearParams.length; i++){
@@ -123,7 +125,7 @@ scene.add( mesh );
 //test large gear (Right) from circle
 shape = new THREE.Shape();
 gearParams = [];
-gearParams=rightGearPoints(rightGearTeeth,0,0,0);
+gearParams=rightGearPoints(rightGearTeeth,0,0,0,radiusR);
 shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
 for (let i = 1; i < gearParams.length; i++){
@@ -189,7 +191,7 @@ const chainMaterial = new THREE.LineBasicMaterial({color:0xff0000});
 const chainSplineObject =  new THREE.Line(chainGeometry, chainMaterial);
 chainSplineObject.rotation.x = Math.PI * .5;
 chainSplineObject.position.y = 0.05;
-scene.add(chainSplineObject);
+// scene.add(chainSplineObject);
 
 ////Resize canvas according to window size
 function resizeRendererToDisplaySize(renderer){
@@ -246,4 +248,8 @@ function render(time) {
 
 }
 
-main();
+main(GearGenerator.leftTeethCount,GearGenerator.rightTeethCount);
+
+function getTeethCount(rearTeethCount,paddleTeethCount){
+    main(rearTeethCount,paddleTeethCount);
+}
