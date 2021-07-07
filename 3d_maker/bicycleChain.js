@@ -14,8 +14,8 @@ renderer.shadowMap.enabled = true;
 
 camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
 camera.position.set( - 1.1, 1.9, 20.5 );
-camera.position.set(-8, 18, 12).multiplyScalar(3);
-camera.lookAt(7,10,2);
+camera.position.set(-6, 4, 6).multiplyScalar(3);
+camera.lookAt(2,5,2);
 
 
 const scene = new THREE.Scene();
@@ -254,6 +254,6 @@ function getTeethCount(rearTeethCount,paddleTeethCount){
     main(rearTeethCount,paddleTeethCount);
 }
 
-//getTeethCount(42,105);
+// getTeethCount(45,100);
 
 window.getTeethCount = getTeethCount;
