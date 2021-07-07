@@ -248,10 +248,12 @@ function render(time) {
 
 }
 
-//main(42,105);
+// main(42,105);
 
 function getTeethCount(rearTeethCount,paddleTeethCount){
     main(rearTeethCount,paddleTeethCount);
 }
 
 //getTeethCount(42,105);
+
+window.getTeethCount = getTeethCount;
