@@ -248,8 +248,10 @@ function render(time) {
 
 }
 
-main(GearGenerator.leftTeethCount,GearGenerator.rightTeethCount);
+//main(42,105);
 
 function getTeethCount(rearTeethCount,paddleTeethCount){
     main(rearTeethCount,paddleTeethCount);
 }
+
+//getTeethCount(42,105);
