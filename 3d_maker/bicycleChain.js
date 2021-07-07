@@ -99,13 +99,15 @@ let leftGearTeeth = rearTeethCount;
 let rightGearTeeth = paddleTeethCount;
 let radiusL = GearGenerator.radius(leftGearTeeth);//RL
 let radiusR = GearGenerator.radius(rightGearTeeth);//Rr
+
+let sprocketCentreHeight = Math.max(radiusL,radiusR)+wheelRadius*1.5;
 const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
 let shape = new THREE.Shape();
 
 //small gear (Left) from circle
 let gearParams = [];
-gearParams=leftGearPoints(leftGearTeeth,0,0,0,radiusR);
+gearParams=leftGearPoints(leftGearTeeth,0,0,0,sprocketCentreHeight);
 shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
 for (let i = 1; i < gearParams.length; i++){
@@ -125,7 +127,7 @@ scene.add( mesh );
 //test large gear (Right) from circle
 shape = new THREE.Shape();
 gearParams = [];
-gearParams=rightGearPoints(rightGearTeeth,0,0,0,radiusR);
+gearParams=rightGearPoints(rightGearTeeth,0,0,0,sprocketCentreHeight);
 shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
 for (let i = 1; i < gearParams.length; i++){
@@ -163,7 +165,7 @@ for (let i = 0; i < (curveResolution/2); i++){
     
     chainTheta = Math.PI/2 + aRanger + interval*i;
     xPoint = radiusL*Math.cos(chainTheta);
-    yPoint = -1 * radiusL*Math.sin(chainTheta) - radiusR;
+    yPoint = -1 * radiusL*Math.sin(chainTheta) - sprocketCentreHeight;
 
     arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
 }
@@ -176,7 +178,7 @@ aRanger = Math.PI/2 - aMax;
 for (let j = 0; j < (curveResolution/2); j++){
     chainTheta = Math.PI + aRanger + interval*(j);
     xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
-    yPoint = -1*radiusR*Math.sin(chainTheta) - radiusR;
+    yPoint = -1*radiusR*Math.sin(chainTheta) - sprocketCentreHeight;
 
     arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
 }
