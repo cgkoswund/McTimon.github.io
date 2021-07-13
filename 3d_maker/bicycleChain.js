@@ -18,7 +18,7 @@ renderer.shadowMap.enabled = true;
 
 camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
 camera.position.set( - 1.1, 1.9, 20.5 );
-camera.position.set(-1, 2, 1.5).multiplyScalar(4);
+camera.position.set(-1.8, 2, 2.2).multiplyScalar(4);
 camera.lookAt(1.8,3.5,2);
 
 
