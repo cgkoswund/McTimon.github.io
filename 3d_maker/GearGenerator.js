@@ -29,7 +29,10 @@ const GearGenerator = {//shared parameters
     noOfLinks : 134,
     radiusRMax: 5,
     leftTeethCount: leftTeethCount,
-    rightTeethCount: rightTeethCount
+    rightTeethCount: rightTeethCount,
+
+    rightSprocketCentreZOffset: -2,
+    rearSprocketZSpacing:0.1
 };
 
 // let radiusR = GearGenerator.radius(rightTeethCount);
@@ -44,6 +47,25 @@ let rightGearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLi
 };
 
 let gearPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d,radiusR){
+
+    // let radiusR = GearGenerator.radiusRMax;
+    const steps = 6;
+    let handleOffsetScale = 1.15;
+    let rad = Math.PI*2/steps;
+    let radiusGearNew=GearGenerator.radius(teethCount);
+    let generatedPoints = [];
+
+    for(let i = 0; i<steps+1;i++){
+        generatedPoints.push([handleOffsetScale*radiusGearNew*Math.cos(rad*(i-0.5))+d,
+        handleOffsetScale*radiusGearNew*Math.sin(rad*(i-0.5))+radiusR,
+        radiusGearNew*Math.cos(rad*(i))+d,
+        radiusGearNew*Math.sin(rad*(i))+radiusR]);
+    }
+
+    return generatedPoints;
+};
+
+let gearSetPoints = function(teethCount,radiusToTeethRatio,attackAngle,chainLinkHeight, d,radiusR){
 
     // let radiusR = GearGenerator.radiusRMax;
     const steps = 6;

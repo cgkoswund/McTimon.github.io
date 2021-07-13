@@ -5,16 +5,20 @@ import { Curve, TetrahedronGeometry } from "./three.module.js";
 
 
 let camera;
-function main(rearTeethCount,paddleTeethCount){
+let rearTeethCount = 42;
+let rearTeethSet = [30,25,20,15,10,5];
+let paddleTeethCount = 100;
+
+function main(rearTeethSetArray,frontTeethSetArray){
 
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
-renderer.setClearColor(0xAAAAAA);
+renderer.setClearColor(0xffffff);
 renderer.shadowMap.enabled = true;
 
 camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
 camera.position.set( - 1.1, 1.9, 20.5 );
-camera.position.set(-6, 4, 6).multiplyScalar(3);
+camera.position.set(-6, 6, 6).multiplyScalar(3);
 camera.lookAt(2,5,2);
 
 
@@ -44,27 +48,29 @@ const scene = new THREE.Scene();
     scene.add(light);
 }
 
-const groundGeometry = new THREE.PlaneBufferGeometry(50, 50);
-const groundMaterial = new THREE.MeshPhongMaterial({color: 0xCC8866});
-const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-groundMesh.rotation.x = Math.PI * -.5;
-groundMesh.receiveShadow = true;
-scene.add(groundMesh);
+// const groundGeometry = new THREE.PlaneBufferGeometry(50, 50);
+// const groundMaterial = new THREE.MeshPhongMaterial({color: 0xCC8866});
+// const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+// groundMesh.rotation.x = Math.PI * -.5;
+// groundMesh.receiveShadow = true;
+// scene.add(groundMesh);
 
 const carWidth = GearGenerator.carWidth
 const carHeight = GearGenerator.carHeight;
 const carLength = GearGenerator.carLength;
 
-const tank = new THREE.Object3D();
-// scene.add(tank);
+const chainLink = new THREE.Object3D();
+scene.add(chainLink);
 
 const bodyGeometry = new THREE.BoxBufferGeometry(carWidth, carHeight, carLength);
-const bodyMaterial = new THREE.MeshPhongMaterial({color: 0x6688AA});
+const bodyMaterial = new THREE.MeshStandardMaterial(
+    {color: 0x777070,metalness:0,roughness:0.1}
+);
 const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
 bodyMesh.position.y = 0;
 // bodyMesh.position.y = 1.4;
 bodyMesh.castShadow = true;
-tank.add(bodyMesh);
+chainLink.add(bodyMesh);
 
 const wheelRadius = GearGenerator.wheelRadius;
 const wheelThickness = GearGenerator.wheelThickness;
@@ -76,8 +82,8 @@ const wheelGeometry = new THREE.CylinderBufferGeometry(
     wheelSegments
 
 );
-const wheelMaterial = new THREE.MeshPhongMaterial(
-    {color: 0x888888}
+const wheelMaterial = new THREE.MeshStandardMaterial(
+    {color: 0x666060,metalness:0,roughness:0.1}
 );
 const wheelPositions = [
     [-carWidth/2 - wheelThickness/2, - 0*carHeight/2, 0],
@@ -97,8 +103,9 @@ const wheelPositions = [
 // let rightGearTeeth = GearGenerator.rightTeethCount;
 let leftGearTeeth = rearTeethCount;
 let rightGearTeeth = paddleTeethCount;
-let radiusL = GearGenerator.radius(leftGearTeeth);//RL
-let radiusR = GearGenerator.radius(rightGearTeeth);//Rr
+// let radiusL = GearGenerator.radius(leftGearTeeth);//RL
+let radiusL = GearGenerator.radius(rearTeethSetArray[0]);//RL
+let radiusR = GearGenerator.radius(frontTeethSetArray[0]);//Rr
 
 let sprocketCentreHeight = Math.max(radiusL,radiusR)+wheelRadius*1.5;
 const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
@@ -107,27 +114,39 @@ let shape = new THREE.Shape();
 
 //small gear (Left) from circle
 let gearParams = [];
-gearParams=leftGearPoints(leftGearTeeth,0,0,0,sprocketCentreHeight);
-shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
-for (let i = 1; i < gearParams.length; i++){
-    shape.quadraticCurveTo(
-        ...gearParams[i]
-        );
-}
+let extrudeSettings;
+let geometry;
+let material;
+let mesh;
+for(let j = 0;j < rearTeethSetArray.length; j++){ 
+    gearParams = [];   
+    shape = new THREE.Shape();
+    gearParams=leftGearPoints(rearTeethSetArray[j],0,0,0,sprocketCentreHeight);
 
-const extrudeSettings = GearGenerator.extrudeSettings;
+    shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
-let geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-const material = new THREE.MeshPhongMaterial( { color: 0x887755 } );
-let mesh = new THREE.Mesh( geometry, material ) ;
-mesh.position.z = -carWidth/4;
+    for (let i = 1; i < gearParams.length; i++){
+        shape.quadraticCurveTo(
+            ...gearParams[i]
+            );
+    }
+    
+
+
+extrudeSettings = GearGenerator.extrudeSettings;
+
+geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+material = new THREE.MeshStandardMaterial( { color: 0x848080,roughness:0.05, metalness: 0} );
+mesh = null;
+mesh = new THREE.Mesh( geometry, material ) ;
+mesh.position.z = -carWidth/4 + j*GearGenerator.rearSprocketZSpacing;
 scene.add( mesh );
-
+}//end of rear sprocket set for loop
 //test large gear (Right) from circle
 shape = new THREE.Shape();
 gearParams = [];
-gearParams=rightGearPoints(rightGearTeeth,0,0,0,sprocketCentreHeight);
+gearParams=rightGearPoints(frontTeethSetArray[0],0,0,0,sprocketCentreHeight);
 shape.moveTo(gearParams[0][2],gearParams[0][3]);
 
 for (let i = 1; i < gearParams.length; i++){
@@ -138,17 +157,18 @@ for (let i = 1; i < gearParams.length; i++){
 
 geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
 mesh = new THREE.Mesh( geometry, material ) ;
-mesh.position.z = -carWidth/4;
+mesh.position.z = -carWidth/4-GearGenerator.rightSprocketCentreZOffset;
 scene.add( mesh );
 
 let noOfLinks = GearGenerator.noOfLinks;
 let linkMeshes = [];
 
 for(let i = 0; i<noOfLinks;i++){
-    linkMeshes.push(tank.clone());
+    linkMeshes.push(chainLink.clone());
     scene.add(linkMeshes[i]);
 }
 
+bodyMesh.position.y = 200;
 const arrayGenPoint = [];
 
 const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
@@ -180,7 +200,7 @@ for (let j = 0; j < (curveResolution/2); j++){
     xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
     yPoint = -1*radiusR*Math.sin(chainTheta) - sprocketCentreHeight;
 
-    arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
+    arrayGenPoint.push(new THREE.Vector3(xPoint,0-GearGenerator.rightSprocketCentreZOffset,yPoint));//append
 }
 
 arrayGenPoint.push(arrayGenPoint[0]);//append
@@ -229,7 +249,7 @@ function render(time) {
     chainCurve.getPointAt(tankXTime % 1, tankXPosition);
     chainCurve.getPointAt((tankXTime + 0.01) % 1, tankXTarget);
     linkMeshes[k].position.set(tankXPosition.x, tankXPosition.z * -1, tankXPosition.y);
-    tank.rotation.x=Math.PI;
+    chainLink.rotation.x=Math.PI;
     linkMeshes[k].lookAt(tankXTarget.x, tankXTarget.z *-1, tankXTarget.y);
     }
     
@@ -252,9 +272,34 @@ function render(time) {
 }
 
 // main(42,105);
+// main();
 
 function getTeethCount(rearTeethCount,paddleTeethCount){
-    main(rearTeethCount,paddleTeethCount);
+
+    //remove "None" strings, change to number
+    let rearTeethCorrected = [];
+    let frontTeethCorrected = [];
+    for(let i=0;i<rearTeethCount.length;i++){
+        if(rearTeethCount[i]=="None"){}
+        else{
+             rearTeethCorrected.push(parseInt(rearTeethCount[i]));
+        }
+    }
+    for(let i=0;i<paddleTeethCount.length;i++){
+        if(paddleTeethCount[i]=="None"){}
+        else{
+            frontTeethCorrected.push(parseInt(paddleTeethCount[i]));
+        }
+    }
+
+    // console.log(rearTeethCorrected);
+    // console.log(frontTeethCorrected);
+
+
+    main(rearTeethCorrected,frontTeethCorrected);
+
+
+
 }
 
 // getTeethCount(45,100);
