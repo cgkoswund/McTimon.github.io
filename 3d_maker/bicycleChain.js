@@ -7,10 +7,13 @@ import { Curve, TetrahedronGeometry } from "./three.module.js";
 let camera;
 let rearTeethCount = 42;
 let rearTeethSet = [30,25,20,15,10,5];
+let frontTeethSet = [40,"None"];
 let paddleTeethCount = 100;
 
-function main(rearTeethSetArray,frontTeethSetArray){
+function main(rearTeethSetArray,frontTeethSetArray,activeRearGear,activeFrontGear){
 
+rearTeethSet = rearTeethSetArray;
+frontTeethSet = frontTeethSetArray
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 renderer.setClearColor(0xffffff);
@@ -104,7 +107,7 @@ const wheelPositions = [
 let leftGearTeeth = rearTeethCount;
 let rightGearTeeth = paddleTeethCount;
 // let radiusL = GearGenerator.radius(leftGearTeeth);//RL
-let radiusL = GearGenerator.radius(rearTeethSetArray[0]);//RL
+let radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
 let radiusR = GearGenerator.radius(frontTeethSetArray[0]);//Rr
 
 let sprocketCentreHeight = Math.max(radiusL,radiusR)+wheelRadius*1.5;
@@ -178,6 +181,7 @@ let aRanger = aMax;
 let chainTheta = 0;
 let xPoint = 0;
 let yPoint = 0;
+let zPoint = 0;
 
 ////chain points
 //smaller sprocker half points
@@ -186,8 +190,9 @@ for (let i = 0; i < (curveResolution/2); i++){
     chainTheta = Math.PI/2 + aRanger + interval*i;
     xPoint = radiusL*Math.cos(chainTheta);
     yPoint = -1 * radiusL*Math.sin(chainTheta) - sprocketCentreHeight;
+    zPoint = GearGenerator.rearSprocketZSpacing*activeRearGear;
 
-    arrayGenPoint.push(new THREE.Vector3(xPoint,0,yPoint));//append
+    arrayGenPoint.push(new THREE.Vector3(xPoint,zPoint,yPoint));//append
 }
 
 chainTheta = 0;
@@ -296,12 +301,17 @@ function getTeethCount(rearTeethCount,paddleTeethCount){
     // console.log(frontTeethCorrected);
 
 
-    main(rearTeethCorrected,frontTeethCorrected);
+    main(rearTeethCorrected,frontTeethCorrected,0,0);
 
 
 
 }
 
+function setActiveRearGear(activeRearGear){
+    main(rearTeethSet,frontTeethSet,activeRearGear)
+}
+
 // getTeethCount(45,100);
 
 window.getTeethCount = getTeethCount;
+window.setActiveRearGear = setActiveRearGear;
