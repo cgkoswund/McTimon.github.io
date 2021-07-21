@@ -22,16 +22,16 @@ const GearGenerator = {//shared parameters
     carWidth : carWidth,
     carHeight : 0.15,
     carLength : 0.4,
-    sprocketCentreInterval: 2 + 5 + 5,
+    sprocketCentreInterval: 5/*2 + 5 + 5*/,
     wheelRadius  :.1,
     wheelThickness : .05,
     wheelSegments : 16,
-    noOfLinks : 134,
+    noOfLinks : 70/*134*/,
     radiusRMax: 5,
     leftTeethCount: leftTeethCount,
     rightTeethCount: rightTeethCount,
 
-    rightSprocketCentreZOffset: -2,
+    rightSprocketCentreZOffset: -1.5,
     rearSprocketZSpacing:0.1
 };
 
