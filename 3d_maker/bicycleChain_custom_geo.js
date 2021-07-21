@@ -439,7 +439,7 @@ function getTeethCount(rearTeethCount,paddleTeethCount){
 
 }
 
-function setActiveRearGear(activeRearGear){
+function setActiveRearGear(activeRearGear,activeFrontGear){
     main(rearTeethSet,frontTeethSet,activeRearGear,activeFrontGear);
 }
 
