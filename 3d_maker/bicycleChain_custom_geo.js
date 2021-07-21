@@ -444,7 +444,7 @@ function setActiveRearGear(activeRearGear){
 }
 
 // getTeethCount(45,100);
-getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
+// getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
 
 window.getTeethCount = getTeethCount;
 window.setActiveRearGear = setActiveRearGear;
