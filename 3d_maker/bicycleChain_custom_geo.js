@@ -11,12 +11,13 @@ let rearTeethCount = 42;
 let rearTeethSet = [30,25,20,15,10,5];
 let frontTeethSet = [40,"None"];
 let paddleTeethCount = 100;
-let sprocketOne, sprocketTwo, sprocketThree, sprocketFour, sprocketFive;
+// let sprocketOne, sprocketTwo, sprocketThree, sprocketFour, sprocketFive;
+let timeCustom = 0;
 
 let toothedGears = [];
 
 function main(rearTeethSetArray,frontTeethSetArray,activeRearGear,activeFrontGear){
-
+toothedGears = [];
 rearTeethSet = rearTeethSetArray;
 frontTeethSet = frontTeethSetArray
 const canvas = document.querySelector('#c');
@@ -382,8 +383,11 @@ function render(time) {
 
     //rotate sprockets
     for(let i = 0; i < toothedGears.length;i++){
-        toothedGears[i].rotation.y += 0.0065*speed2;
+        // toothedGears[i].rotation.y = 0.0065*speed2;
+
+        toothedGears[i].rotation.y = 0.39*speed2*time;
     }
+    console.log(toothedGears.length);
     // sprocketOne.rotation.y += 0.02;
     // sprocketTwo.rotation.y += 0.02;
     // sprocketThree.rotation.y += 0.02;
@@ -440,6 +444,7 @@ function getTeethCount(rearTeethCount,paddleTeethCount){
 }
 
 function setActiveRearGear(activeRearGear,activeFrontGear){
+    timeCustom = 0;
     main(rearTeethSet,frontTeethSet,activeRearGear,activeFrontGear);
 }
 
