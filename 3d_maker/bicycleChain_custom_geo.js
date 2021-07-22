@@ -387,7 +387,7 @@ function render(time) {
 
         toothedGears[i].rotation.y = 0.39*speed2*time;
     }
-    console.log(toothedGears.length);
+    // console.log(toothedGears.length);
     // sprocketOne.rotation.y += 0.02;
     // sprocketTwo.rotation.y += 0.02;
     // sprocketThree.rotation.y += 0.02;
