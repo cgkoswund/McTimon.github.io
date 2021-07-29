@@ -1,7 +1,7 @@
 import * as THREE from './three.module.js';
 import { leftGearPoints,rightGearPoints,GearGenerator } from "./GearGenerator.js";
 import { BufferGeometryUtils } from './BufferGeometryUtils__m.js';
-import { OrbitControls } from './OrbitControls.js';
+import { OrbitControls } from './OrbitControls2.js';
 import { Curve, TetrahedronGeometry } from "./three.module.js";
 
 
@@ -308,6 +308,13 @@ function resizeRendererToDisplaySize(renderer){
 }
 
 
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.addEventListener( 'change', render ); // use if there is no animation loop
+controls.minDistance = 2;
+controls.maxDistance = 1000;
+controls.target.set( 0.1, 0.1, 0.2 );
+controls.update();
+
 function render(time) {
         
     time *= 0.001;
@@ -337,7 +344,7 @@ function render(time) {
     // controls.minDistance = 2;
     // controls.maxDistance = 1000;
     // controls.target.set( 0.1, 0.1, 0.2 );
-    // controls.update();
+    controls.update();
 
     renderer.render(scene, camera);
 

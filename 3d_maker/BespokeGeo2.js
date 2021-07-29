@@ -1,5 +1,6 @@
 import * as THREE from "./three.module.js"
 import {GearGenerator} from "./GearGenerator.js"
+import {MeshOps} from "./MeshOps.js";
 
 let bevelSteps = 2;
 let bevelThickness = 0.5;
@@ -760,6 +761,7 @@ let BespokeGeo = {
         let ringSegments = teethCount*10;
         let sprocketSectionSegments = 5;//10;
         let ringVerts = [];
+        let teethTipExtension = 0.1;
 
         //sprocket params
         let thetaOne = 2*Math.PI/teethCount;
@@ -774,15 +776,8 @@ let BespokeGeo = {
         let aLittle = 0.2*rGroove;
         let rLoop = rPitch - rGroove - aLittle;
 
-         // console.log("rLoop: "+rLoop);
-         // console.log("rInner: "+rInner);
-         // console.log("rPitch: "+rPitch);
-         // console.log("rGroove: "+rGroove);
-
-      //   rLoop = outerDiameter/2;
-      //   rInner = innerDiameter/2;
-        
-        
+        let rFlatTip = rTip + teethTipExtension;
+   
         let rTO=outerDiameter/2 - bevelThickness - hardNormalExtension;
         let rTI=innerDiameter/2  + bevelThickness + hardNormalExtension;
         let rSO=outerDiameter/2;
@@ -796,64 +791,41 @@ let BespokeGeo = {
         let theta2 = 2*Math.PI/teethCount;
         let phi = theta/2;
         let phi2 = theta/5;
+        let thetaBendGroove = GearGenerator.extensionGrooveAngle*Math.PI/180;
+        let thetaBendTip = GearGenerator.extensionTipAngle*Math.PI/180;
 
-        //   let ringVerts = [];
-
-////////////////////////////////////////////////////////////////////////////
+////////////////--------------------SKINNING MESHES-----------------//////////////
 
       ////rInner --> rLoop
-
       for(let i=0; i<ringSegments;i++){//cap top
-         let normalDir = [0,1,0]
-         let vert = {
-            pos: [rInner*Math.cos(1*(phi+(i-1)*theta)),  sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
 
-         ringVerts.push(vert);
-         vert = {
-            pos: [rInner*Math.cos(1*(phi+(i)*theta)),  sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
+         let vertAops, vertBops, vertCops, vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         vertAops = [rInner*Math.cos(1*(phi+(i-1)*theta)),  sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))];
+         vertBops = [rInner*Math.cos(1*(phi+(i)*theta)),  sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i)*theta))];
+         vertCops = [rLoop*Math.cos(1*(phi+(i)*theta)),  sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))];
+         vertDops = [rLoop*Math.cos(1*(phi+(i-1)*theta)),  sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i-1)*theta))];
 
-         ringVerts.push(vert);
+         normalCops = normalDops = normalAops =  normalBops = [0,1,0];
+         uvAops= uvBops= uvCops= uvDops = [0,0];
 
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i)*theta)),  sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i)*theta)),  sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i-1)*theta)),  sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rInner*Math.cos(1*(phi+(i-1)*theta)),  sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
-
+         ringVerts.push (...MeshOps.makeQuadFace(
+            vertAops,vertBops,vertCops,vertDops,
+            normalAops,normalBops,normalCops,normalDops,
+            uvAops,uvBops,uvCops,uvDops
+        ));
 
        }//cap top
       ////rInner --> rLoop
 
-       //////rLoop --> rPitch
+       //////rLoop --> rPitch (grooves)
        let thetaGroove = Math.PI/2 - 2*Math.PI/(4*teethCount);
        let thetaGap = Math.PI/2 - thetaGroove;
        let thetaGrooveITR = thetaGroove/sprocketSectionSegments;
        let thetaLoopA, thetaLoopB;
        let rUnknownA,rUnknownB,thetaXA,thetaQA,thetaXB,thetaQB; 
        for(let i = 0; i<teethCount;i++){
-
-
-
           for(let j = 0; j < sprocketSectionSegments*2; j++){
             let normalDir = [0,1,0];
             thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
@@ -867,46 +839,30 @@ let BespokeGeo = {
             let rBx= rPitch*Math.cos((i)*thetaOne)+rGroove*Math.cos(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
             let rAy= rPitch*Math.sin(i*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR);
             let rBy= rPitch*Math.sin((i)*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
+            let rAz= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove);
             thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
             thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
-            
-            let vert = {
-               pos: [rAx,  sprocketInnerRingHeight,  rAy], norm: normalDir, uv: [0, 0] 
-            }
+
+
+            let vertAops, vertBops, vertCops, vertDops;
+            let normalAops, normalBops, normalCops, normalDops;
+            let uvAops, uvBops, uvCops, uvDops;
+            vertAops = [rAx,  rAz,  rAy];
+            vertBops = [rLoop*Math.cos(thetaLoopA),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopA)];
+            vertCops = [rLoop*Math.cos(thetaLoopB),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)];
+            vertDops = [rBx,  rAz,  rBy];
+
+            normalBops =  normalCops = [Math.cos(thetaLoopA)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(thetaLoopA)*Math.sin(thetaBendGroove)];
+            normalAops = normalDops = [Math.cos(thetaLoopB)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(thetaLoopB)*Math.sin(thetaBendGroove)];
+            uvAops= uvBops= uvCops= uvDops = [0,0];
    
-            ringVerts.push(vert);
-            vert = {
-               pos: [rLoop*Math.cos(thetaLoopA),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopA)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-   
-            vert = {
-               pos: [rLoop*Math.cos(thetaLoopB),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-            ///////////////////////////////////////
-            vert = {
-               pos: [rLoop*Math.cos(thetaLoopB),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-            vert = {
-               pos: [rBx,  sprocketInnerRingHeight,  rBy], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-   
-            vert = {
-               pos: [rAx,  sprocketInnerRingHeight,  rAy], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-            ///////////////////////////////////////
+            ringVerts.push (...MeshOps.makeQuadFace(
+               vertAops,vertBops,vertCops,vertDops,
+               normalAops,normalBops,normalCops,normalDops,
+               uvAops,uvBops,uvCops,uvDops
+           ));
           }
-       }
-       rGearFlats = rUnknownA;
+       }rGearFlats = rUnknownA;
        //////rLoop --> rPitch (grooves)
 
       ////rLoop --> rPitch (flats)
@@ -915,41 +871,25 @@ let BespokeGeo = {
        let thetaFlatITR = (rTip/radialSum)*1*thetaFlat/sprocketSectionSegments;
 for(let i = 0; i < teethCount; i++){
       for(let j=0; j<sprocketSectionSegments*1;j++){//cap top
-         let normalDir = [0,1,0]
-         let vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
 
-         ringVerts.push(vert);
-         vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
+         let vertAops, vertBops, vertCops, vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         let rAz= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove);
+         vertAops = [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+         vertBops = [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertCops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAz,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertDops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  rAz,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
 
-         ringVerts.push(vert);
+         normalAops = normalDops =  [Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(thetaBendGroove)];
+         normalBops = normalCops = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(thetaBendGroove)];
+         uvAops= uvBops= uvCops= uvDops = [0,0];
 
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
+         ringVerts.push (...MeshOps.makeQuadFace(
+            vertAops,vertBops,vertCops,vertDops,
+            normalAops,normalBops,normalCops,normalDops,
+            uvAops,uvBops,uvCops,uvDops
+        ));
 
          }
        }//cap top
@@ -962,62 +902,30 @@ for(let i = 0; i < teethCount; i++){
       ////rInner --> rLoop
 
       for(let i=0; i<ringSegments;i++){//cap top
-         let normalDir = [0,-1,0]
-         let vert = {
-            pos: [rInner*Math.cos(1*(phi+(i)*theta)),  -sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
 
-         ringVerts.push(vert);
+         let vertAops, vertBops, vertCops, vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         vertAops = [rInner*Math.cos(1*(phi+(i-1)*theta)),  -sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))];
+         vertBops = [rInner*Math.cos(1*(phi+(i)*theta)),  -sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i)*theta))];
+         vertCops = [rLoop*Math.cos(1*(phi+(i)*theta)),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))];
+         vertDops = [rLoop*Math.cos(1*(phi+(i-1)*theta)),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i-1)*theta))];
 
-         vert = {
-            pos: [rInner*Math.cos(1*(phi+(i-1)*theta)),  -sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
+         normalCops = normalDops = normalAops =  normalBops = [0,-1,0];
+         uvAops= uvBops= uvCops= uvDops = [0,0];
 
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i)*theta)),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i)*theta)),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-
-
-         vert = {
-            pos: [rInner*Math.cos(1*(phi+(i-1)*theta)),  -sprocketInnerRingHeight,  rInner*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rLoop*Math.cos(1*(phi+(i-1)*theta)),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*(phi+(i-1)*theta))], norm: normalDir, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-
-         ///////////////////////////////////////
-
+         ringVerts.push (...MeshOps.makeInvertedQuadFace(
+            vertAops,vertBops,vertCops,vertDops,
+            normalAops,normalBops,normalCops,normalDops,
+            uvAops,uvBops,uvCops,uvDops
+        ));
 
        }//cap top
       ////rInner --> rLoop
 
-       //////rLoop --> rPitch
-       //let thetaGroove = Math.PI/2 - 2*Math.PI/(4*teethCount);
-       //let thetaGap = Math.PI/2 - thetaGroove;
-       //let thetaGrooveITR = thetaGroove/sprocketSectionSegments;
-       //let thetaLoopA, thetaLoopB;
-       //let rUnknownA,rUnknownB,thetaXA,thetaQA,thetaXB,thetaQB; 
+       //////rLoop --> rPitch (grooves)
        for(let i = 0; i<teethCount;i++){
-
-
-
           for(let j = 0; j < sprocketSectionSegments*2; j++){
-            let normalDir = [0,-1,0];
             thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
             thetaXB = Math.PI/2 - thetaGap - (j)*thetaGrooveITR;
             thetaQA = Math.asin(rGroove*Math.sin(thetaXA)/rUnknownA);
@@ -1029,149 +937,85 @@ for(let i = 0; i < teethCount; i++){
             let rBx= rPitch*Math.cos((i)*thetaOne)+rGroove*Math.cos(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
             let rAy= rPitch*Math.sin(i*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR);
             let rBy= rPitch*Math.sin((i)*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
+            let rAz= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove);
             thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
             thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
-            
-            let vert = {
-               pos: [rLoop*Math.cos(thetaLoopA),  -sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopA)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
 
-            vert = {
-               pos: [rAx,  -sprocketInnerRingHeight,  rAy], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-   
-            vert = {
-               pos: [rLoop*Math.cos(thetaLoopB),  -sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-            ///////////////////////////////////////
-            vert = {
-               pos: [rLoop*Math.cos(thetaLoopB),  -sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
+         let vertAops, vertBops, vertCops, vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         vertAops = [rAx,  -rAz,  rAy];
+         vertBops = [rLoop*Math.cos(thetaLoopA),  -sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopA)];
+         vertCops = [rLoop*Math.cos(thetaLoopB),  -sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)];
+         vertDops = [rBx,  -rAz,  rBy];
 
-            vert = {
-               pos: [rAx,  -sprocketInnerRingHeight,  rAy], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
+         normalBops = normalCops = [Math.cos(thetaLoopA+Math.PI)*Math.sin(thetaBendGroove+Math.PI),Math.cos(thetaBendGroove+Math.PI),Math.sin(thetaLoopA+Math.PI)*Math.sin(thetaBendGroove+Math.PI)];
+         normalAops = normalDops = [Math.cos(thetaLoopB+Math.PI)*Math.sin(thetaBendGroove+Math.PI),Math.cos(thetaBendGroove+Math.PI),Math.sin(thetaLoopB+Math.PI)*Math.sin(thetaBendGroove+Math.PI)];
+           
+         uvAops= uvBops= uvCops= uvDops = [0,0];
 
-            vert = {
-               pos: [rBx,  -sprocketInnerRingHeight,  rBy], norm: normalDir, uv: [0, 0] 
-            }
-   
-            ringVerts.push(vert);
-
-            ///////////////////////////////////////
+         ringVerts.push (...MeshOps.makeInvertedQuadFace(
+            vertAops,vertBops,vertCops,vertDops,
+            normalAops,normalBops,normalCops,normalDops,
+            uvAops,uvBops,uvCops,uvDops
+        ));
           }
-       }
-       rGearFlats = rUnknownA;
-       //////rLoop --> rPitch (grooves)
+       } rGearFlats = rUnknownA;
+      
 
-      ////rLoop --> rPitch (flats)
-      //let thetaFlat = 2*Math.PI/teethCount;
-       //let phiFlat=  0.44*thetaFlat;
-       //let thetaFlatITR = (rTip/radialSum)*1*thetaFlat/sprocketSectionSegments;
+       //////rLoop --> rPitch (grooves)
+       //////rLoop --> rPitch (flats)
 for(let i = 0; i < teethCount; i++){
       for(let j=0; j<sprocketSectionSegments*1;j++){//cap top
-         let normalDir = [0,-1,0]
-         let vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
 
-         ringVerts.push(vert);
+         let vertAops, vertBops, vertCops, vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         let rAz= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove);
+         vertAops = [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+         vertBops = [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertCops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAz,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertDops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -rAz,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
 
-         vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
+         normalAops = normalDops =  [Math.cos(Math.PI + 1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(Math.PI + thetaBendGroove),Math.cos(Math.PI + thetaBendGroove),Math.sin(Math.PI + 1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(Math.PI + thetaBendGroove)];
+         normalBops = normalCops = [Math.cos(Math.PI + 1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(Math.PI + thetaBendGroove),Math.cos(Math.PI + thetaBendGroove),Math.sin(Math.PI + 1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(Math.PI + thetaBendGroove)];
+         
+         uvAops= uvBops= uvCops= uvDops = [0,0];
 
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-         ///////////////////////////////////////
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-
-
-         vert = {
-            pos: [rLoop*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rLoop*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-
-         vert = {
-            pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalDir, uv: [0, 0] 
-         }
-
-         ringVerts.push(vert);
-
-         ///////////////////////////////////////
+         ringVerts.push (...MeshOps.makeInvertedQuadFace(
+            vertAops,vertBops,vertCops,vertDops,
+            normalAops,normalBops,normalCops,normalDops,
+            uvAops,uvBops,uvCops,uvDops
+        ));
 
          }
-       }//cap top
+       }
       ////rLoop --> rPitch (flats)
-
+//(END OF CAP BOTTOM)
 ////////////////////////////////////////////////////////////////////////////////
 
       ////skin inner loop sides
       for(let i = 0;i<ringSegments;i++){
-         ////////////////////////////////
-     let normalDir = [Math.cos(i*theta),0,Math.sin(i*theta)]
-     let normalA = [-Math.cos((i-1)*theta),0,-Math.sin((i-1)*theta)];
-     let normalB = [-Math.cos(i*theta),0,-Math.sin(i*theta)];
-         let vert = {
-           pos: [rInner*Math.cos(phi+i*theta),  -sprocketInnerRingHeight,  rInner*Math.sin(phi+i*theta)], norm: normalB, uv: [0.5, 0.5] 
-        }
 
-        ringVerts.push(vert); 
-         
-         
-         vert = {
-            pos: [rInner*Math.cos(phi+i*theta),  sprocketInnerRingHeight,  rInner*Math.sin(phi+i*theta)], norm: normalB, uv: [0.5, 0.5] 
-         }
+               let vertAops, vertBops, vertCops, vertDops;
+               let normalAops, normalBops, normalCops, normalDops;
+               let uvAops, uvBops, uvCops, uvDops;
 
-         ringVerts.push(vert);
-         
+               vertAops = [rInner*Math.cos(phi+(i)*theta),  -sprocketInnerRingHeight,  rInner*Math.sin(phi+(i)*theta)];
+               vertBops = [rInner*Math.cos(phi+i*theta),  sprocketInnerRingHeight,  rInner*Math.sin(phi+i*theta)];
+               vertCops = [rInner*Math.cos(phi+(i-1)*theta),  sprocketInnerRingHeight,  rInner*Math.sin(phi+(i-1)*theta)];
+               vertDops = [rInner*Math.cos(phi+(i-1)*theta),  -sprocketInnerRingHeight,  rInner*Math.sin(phi+(i-1)*theta)];
 
-         vert = {
-            pos: [rInner*Math.cos(phi+(i-1)*theta),  -sprocketInnerRingHeight,  rInner*Math.sin(phi+(i-1)*theta)], norm: normalA, uv: [0.5, 0.5] 
-         }
+               normalCops = normalDops =[-Math.cos((i-1)*theta),0,-Math.sin((i-1)*theta)];
+               normalAops =  normalBops =[-Math.cos(i*theta),0,-Math.sin(i*theta)];
 
-         ringVerts.push(vert);
-///////////////////////////////////////////////////
+               uvAops= uvBops= uvCops= uvDops = [0,0];
 
-
-         vert = {
-            pos: [rInner*Math.cos(phi+(i-1)*theta),  sprocketInnerRingHeight,  rInner*Math.sin(phi+(i-1)*theta)], norm: normalA, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-         
-         vert = {
-            pos:  [rInner*Math.cos(phi+(i-1)*theta),  -sprocketInnerRingHeight,  rInner*Math.sin(phi+(i-1)*theta)], norm: normalA, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
-
-
-         vert = {
-            pos: [rInner*Math.cos(phi+i*theta),  sprocketInnerRingHeight,  rInner*Math.sin(phi+i*theta)], norm: normalB, uv: [0.5, 0.5] 
-         }
-
-         ringVerts.push(vert);
+               ringVerts.push (...MeshOps.makeQuadFace(
+                  vertAops,vertBops,vertCops,vertDops,
+                  normalAops,normalBops,normalCops,normalDops,
+                  uvAops,uvBops,uvCops,uvDops
+              ));
          //////////////////////////////////
      }////skin inner loop sides
 
@@ -1182,11 +1026,8 @@ for(let i = 0; i < teethCount; i++){
             // thetaLoopA, thetaLoopB;
             // let rUnknownA,rUnknownB,thetaXA,thetaQA,thetaXB,thetaQB; 
             for(let i = 0; i<teethCount;i++){
-     
-     
-     
                for(let j = 0; j < sprocketSectionSegments*2; j++){
-                 let normalDir = [0,1,0];
+
                  let normalA = [Math.cos(Math.PI*3/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR),0,Math.sin(Math.PI*3/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR)];//Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR
                  let normalB = [Math.cos(Math.PI*3/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR),0,Math.sin(Math.PI*3/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR)];//Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR
                  thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
@@ -1200,101 +1041,209 @@ for(let i = 0; i < teethCount; i++){
                  let rBx= rPitch*Math.cos((i)*thetaOne)+rGroove*Math.cos(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
                  let rAy= rPitch*Math.sin(i*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR);
                  let rBy= rPitch*Math.sin((i)*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
+                 let rAz= sprocketInnerRingHeight-(Math.sqrt(rAx**2 + rAy**2)-rLoop)*Math.tan(thetaBendGroove);
+                 let rBz= sprocketInnerRingHeight-(Math.sqrt(rBx**2 + rBy**2)-rLoop)*Math.tan(thetaBendGroove);
                  thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
                  thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
-                 
-                 let vert = {
-                    pos: [rAx,  sprocketInnerRingHeight,  rAy], norm: normalA, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-                 vert = {
-                    pos: [rBx,  sprocketInnerRingHeight,  rBy], norm: normalB, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-        
-                 vert = {
-                    pos: [rBx,  -sprocketInnerRingHeight,  rBy], norm: normalB, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-                 ///////////////////////////////////////
-                 vert = {
-                    pos: [rBx,  -sprocketInnerRingHeight,  rBy], norm: normalB, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-                 vert = {
-                    pos: [rAx,  -sprocketInnerRingHeight,  rAy], norm: normalA, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-        
-                 vert = {
-                    pos: [rAx,  sprocketInnerRingHeight,  rAy], norm: normalA, uv: [0, 0] 
-                 }
-        
-                 ringVerts.push(vert);
-                 ///////////////////////////////////////
+
+                 let vertAops, vertBops, vertCops, vertDops;
+                 let normalAops, normalBops, normalCops, normalDops;
+                 let uvAops, uvBops, uvCops, uvDops;
+
+                 vertAops = [rAx,  rAz,  rAy];
+                 vertBops = [rBx,  rBz,  rBy];
+                 vertCops = [rBx,  -rBz,  rBy];
+                 vertDops = [rAx,  -rAz,  rAy];
+
+                 normalAops = normalA;
+                 normalBops = normalB;
+                 normalCops = normalB;
+                 normalDops = normalA;
+
+                 uvAops= uvBops= uvCops= uvDops = [0,0];
+
+                ringVerts.push (...MeshOps.makeQuadFace(
+                     vertAops,vertBops,vertCops,vertDops,
+                     normalAops,normalBops,normalCops,normalDops,
+                     uvAops,uvBops,uvCops,uvDops
+                 ));
+    
                }
-            }
-            //////skin gear groove sides
+            }//////skin gear groove sides
 
-                  ////skin gear flats sides
-      // let thetaFlat = 2*Math.PI/teethCount;
-      // let phiFlat=  0.44*thetaFlat;
-      // let thetaFlatITR = (rTip/radialSum)*1*thetaFlat/sprocketSectionSegments;
+////skin gear flats outer (tangent)sides
+      rFlatTip = rGearFlats + teethTipExtension;
 for(let i = 0; i < teethCount; i++){
-     for(let j=0; j<sprocketSectionSegments*1;j++){//cap top
-        let normalDir = [0,1,0];
-        let normalA = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),0,rPitch*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
-        let normalB = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),0,rPitch*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
-        let vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalA, uv: [0, 0] 
-        }
+     for(let j=0; j<sprocketSectionSegments*1;j++){
 
-        ringVerts.push(vert);
-        vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalB, uv: [0, 0] 
-        }
+        let vertAops,vertBops,vertCops,vertDops;
+        let normalAops, normalBops, normalCops, normalDops;
+        let uvAops, uvBops, uvCops, uvDops;
+        let rAzO= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove) - teethTipExtension*Math.tan(thetaBendTip); 
+        vertAops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+        vertBops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertCops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertDops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
 
-        ringVerts.push(vert);
+        normalAops= normalDops = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),0,rPitch*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+        normalBops= normalCops= [Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),0,rPitch*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
 
-        vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalB, uv: [0, 0] 
-        }
+        uvAops= uvBops= uvCops =uvDops = [0,0];
 
-        ringVerts.push(vert);
-        ///////////////////////////////////////
-        vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)], norm: normalB, uv: [0, 0] 
-        }
-
-        ringVerts.push(vert);
-        vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalA, uv: [0, 0] 
-        }
-
-        ringVerts.push(vert);
-
-        vert = {
-           pos: [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  sprocketInnerRingHeight,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)], norm: normalA, uv: [0, 0] 
-        }
-
-        ringVerts.push(vert);
-        ///////////////////////////////////////
+        ringVerts.push(...MeshOps.makeQuadFace(
+         vertAops,vertBops,vertCops,vertDops,
+         normalAops,normalBops,normalCops,normalDops,
+         uvAops,uvBops,uvCops,uvDops
+     ));
 
         }
-      }//cap top
+      }////skin gear flats outer (tangent) sides
 
+     //cap extension top sides
+for(let i = 0; i < teethCount; i++){
+    for(let j=0; j<sprocketSectionSegments*1;j++){
+         let vertAops,vertBops,vertCops,vertDops;
+         let normalAops, normalBops, normalCops, normalDops;
+         let uvAops, uvBops, uvCops, uvDops;
+         let rAzI= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove); 
+         let rAzO= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove) - teethTipExtension*Math.tan(thetaBendTip); 
+         vertAops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+         vertBops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertCops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+         vertDops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
 
+         normalBops =  normalCops = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(thetaBendTip),
+            Math.cos(thetaBendTip),
+            Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(thetaBendTip)];
+         normalAops = normalDops = [Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(thetaBendTip),
+            Math.cos(thetaBendTip),
+            Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(thetaBendTip)];
+           
 
+        uvAops= uvBops= uvCops =uvDops = [0,0];
+       ringVerts.push(...MeshOps.makeQuadFace(
+           vertAops,vertBops,vertCops,vertDops,
+           normalAops,normalBops,normalCops,normalDops,
+           uvAops,uvBops,uvCops,uvDops
+       ));
+    }
+}//cap extension top sides
 
+     //cap extension bottom sides
+for(let i = 0; i < teethCount; i++){
+    for(let j=0; j<sprocketSectionSegments*1;j++){
+        
+        let vertAops,vertBops,vertCops,vertDops;
+        let normalAops, normalBops, normalCops, normalDops;
+        let uvAops, uvBops, uvCops, uvDops;
 
+        let rAzI= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove); 
+        let rAzO= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove) - teethTipExtension*Math.tan(thetaBendTip); 
 
-     ////skin gear flats sides
-       //////rPitch --> Tip
+        vertAops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+        vertBops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertCops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertDops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+
+        normalBops =  normalCops = [Math.cos(Math.PI + 1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(Math.PI +thetaBendTip),
+         Math.cos(Math.PI +thetaBendTip),
+         Math.sin(Math.PI +1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)*Math.sin(Math.PI +thetaBendTip)];
+      normalAops = normalDops = [Math.cos(Math.PI +1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(Math.PI +thetaBendTip),
+         Math.cos(Math.PI +thetaBendTip),
+         Math.sin(Math.PI +1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)*Math.sin(Math.PI +thetaBendTip)];
+
+        uvAops= uvBops= uvCops =uvDops = [0,0];
+       ringVerts.push(...MeshOps.makeInvertedQuadFace(
+           vertAops,vertBops,vertCops,vertDops,
+           normalAops,normalBops,normalCops,normalDops,
+           uvAops,uvBops,uvCops,uvDops
+       ));
+    }
+}//cap extension bottom sides
+
+//cap extension groove one side
+for(let i = 0; i < teethCount; i++){
+    // for(let j=0; j<sprocketSectionSegments;j++){
+        let j = sprocketSectionSegments-1;
+        // j = 0;
+
+        let normalA = [Math.cos(1*((i)*thetaFlat)+phiFlat+Math.PI/2+(j)*thetaFlatITR),  0,  Math.sin(1*((i)*thetaFlat)+phiFlat+Math.PI/2+(j)*thetaFlatITR)];//Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR
+        thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
+        thetaXB = Math.PI/2 - thetaGap - (j)*thetaGrooveITR;
+        thetaQA = Math.asin(rGroove*Math.sin(thetaXA)/rUnknownA);
+        thetaQB = Math.asin(rGroove*Math.sin(thetaXB)/rUnknownB);
+        rUnknownA = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXA));
+        rUnknownB = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXB));
+
+        thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
+        thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
+
+        let rAzI= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove); 
+         let rAzO= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove) - teethTipExtension*Math.tan(thetaBendTip); 
+         //vertAops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR),  rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j-1)*thetaFlatITR)];
+
+        let vertAops,vertBops,vertCops,vertDops;
+        let normalAops, normalBops, normalCops, normalDops;
+        let uvAops, uvBops, uvCops, uvDops;
+
+        vertAops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertBops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertCops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+        vertDops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+
+        normalAops= normalBops= normalCops= normalDops= normalA;
+
+        uvAops= uvBops= uvCops =uvDops = [0,0];
+       ringVerts.push(...MeshOps.makeQuadFace(
+           vertAops,vertBops,vertCops,vertDops,
+           normalAops,normalBops,normalCops,normalDops,
+           uvAops,uvBops,uvCops,uvDops
+       ));
+    // }
+}//cap extension groove one side
+
+//cap extension groove other side
+for(let i = 0; i < teethCount; i++){
+        // for(let j=0; j<sprocketSectionSegments;j++){
+            let j = 0-1;
+            // j = 0;
+    
+            let normalA = [Math.cos(1*((i)*thetaFlat)+phiFlat+Math.PI*3/2+(j)*thetaFlatITR),  0,  Math.sin(1*((i)*thetaFlat)+phiFlat+Math.PI*3/2+(j)*thetaFlatITR)];//Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR
+            thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
+            thetaXB = Math.PI/2 - thetaGap - (j)*thetaGrooveITR;
+            thetaQA = Math.asin(rGroove*Math.sin(thetaXA)/rUnknownA);
+            thetaQB = Math.asin(rGroove*Math.sin(thetaXB)/rUnknownB);
+            rUnknownA = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXA));
+            rUnknownB = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXB));
+    
+            thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
+            thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
+
+            let rAzI= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove); 
+         let rAzO= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove) - teethTipExtension*Math.tan(thetaBendTip); 
+    
+            let vertAops,vertBops,vertCops,vertDops;
+            let normalAops, normalBops, normalCops, normalDops;
+            let uvAops, uvBops, uvCops, uvDops;
+    
+            vertAops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+            vertBops = [rGearFlats*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzI,  rGearFlats*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+            vertCops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  -rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+            vertDops = [rFlatTip*Math.cos(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR),  rAzO,  rFlatTip*Math.sin(1*((i)*thetaFlat)+phiFlat+(j)*thetaFlatITR)];
+    
+            normalAops= normalBops= normalCops= normalDops= normalA;
+    
+            uvAops= uvBops= uvCops =uvDops = [0,0];
+           ringVerts.push(...MeshOps.makeInvertedQuadFace(
+               vertAops,vertBops,vertCops,vertDops,
+               normalAops,normalBops,normalCops,normalDops,
+               uvAops,uvBops,uvCops,uvDops
+           ));
+        // }
+}
+//cap extension groove other side
+
+      //////rPitch --> Tip
       //  let thetaGroove = Math.PI/2 - 2*Math.PI/(4*teethCount);
       //  let thetaGap = Math.PI/2 - thetaGroove;
       // let thetaTipITR = (Math.PI - thetaGroove)/sprocketSectionSegments;

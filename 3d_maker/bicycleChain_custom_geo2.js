@@ -1,12 +1,13 @@
 import * as THREE from './three.module.js';
 import { leftGearPoints,rightGearPoints,GearGenerator } from "./GearGenerator.js";
 import { BufferGeometryUtils } from './BufferGeometryUtils__m.js';
-import { OrbitControls } from './OrbitControls.js';
+import { OrbitControls } from './OrbitControls2.js';
 import { Curve, TetrahedronGeometry } from "./three.module.js";
-import {BespokeGeo} from "./BespokeGeo.js";
-import { RGBELoader } from './RGBELoader.js';
-import { RoughnessMipmapper } from './RoughnessMipmapper.js';
+import {BespokeGeo} from "./BespokeGeo2.js"
+
+import { HDRCubeTextureLoader } from './HDRCubeTextureLoader.js';
 import { RGBMLoader } from './RGBMLoader.js';
+import { DebugEnvironment } from './DebugEnvironment.js';
 
 
 let camera;
@@ -14,8 +15,11 @@ let rearTeethCount = 42;
 let rearTeethSet = [30,25,20,15,10,5];
 let frontTeethSet = [40,"None"];
 let paddleTeethCount = 100;
-let envMap;
-let textureEquirec, textureCube;
+let container, stats;
+// let camera, scene, renderer, controls;
+let torusMesh, planeMesh;
+let generatedCubeRenderTarget, ldrCubeRenderTarget, hdrCubeRenderTarget, rgbmCubeRenderTarget;
+let ldrCubeMap, hdrCubeMap, rgbmCubeMap;
 // let sprocketOne, sprocketTwo, sprocketThree, sprocketFour, sprocketFive;
 let timeCustom = 0;
 
@@ -26,10 +30,14 @@ toothedGears = [];
 rearTeethSet = rearTeethSetArray;
 frontTeethSet = frontTeethSetArray
 const canvas = document.querySelector('#c');
+////////////////
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 renderer.setClearColor(0xffffff);
 renderer.shadowMap.enabled = true;
 
+renderer.physicallyCorrectLights = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+/////////////////
 camera = new THREE.PerspectiveCamera( 40, (0.78* window.innerWidth) / window.innerHeight, 0.1, 1000 );
 camera.position.set( - 1.1, 1.9, 20.5 );
 // camera.position.set(8, 5, 12.2).multiplyScalar(4);
@@ -38,18 +46,53 @@ camera.lookAt(1.8,3.5,2);
 // camera.lookAt(10,10,10);
 // camera.lookAt(1.8,3.5,2);
 
+const texture = new THREE.TextureLoader().load( 'textures/equirectangular/royal_esplanade_1k.hdr' );
 
+////////////////////
+const materialX2 = new THREE.MeshStandardMaterial( { 
+    color: 0x777777,
+	metalness: 0.85,
+	roughness: 0.2
+} );
+const materialX3 = new THREE.MeshStandardMaterial( { 
+    color: 0xbb8933,
+    // color: 0x996622,
+	metalness: 0.9,
+	roughness: 0.25
+} );
+THREE.DefaultLoadingManager.onLoad = function ( ) {
+    pmremGenerator.dispose();
+};
+
+const hdrUrls = [ 'px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr' ];
+				hdrCubeMap = new HDRCubeTextureLoader()
+					.setPath( './textures/cube/pisaHDR/' )
+					.setDataType( THREE.UnsignedByteType )
+					.load( hdrUrls, function () {
+
+						hdrCubeRenderTarget = pmremGenerator.fromCubemap( hdrCubeMap );
+
+						hdrCubeMap.magFilter = THREE.LinearFilter;
+						hdrCubeMap.needsUpdate = true;
+
+					} );
+
+const pmremGenerator = new THREE.PMREMGenerator( renderer );
+pmremGenerator.compileCubemapShader();
+    
+const envScene = new DebugEnvironment();
+generatedCubeRenderTarget = pmremGenerator.fromScene( envScene );
+    
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+/////////////////////////////
 const scene = new THREE.Scene();
-
-
-////////////////////////////////***************************************** */
-
-////////////////////////////////************************* */
+scene.environment = texture;
 
 {
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(0,20,0);
-    scene.add(light);
+    // scene.add(light);
     light.castShadow = true;
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
@@ -65,17 +108,10 @@ const scene = new THREE.Scene();
 }
 
 {
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1,2,4);
-    scene.add(light);
+    const light2 = new THREE.DirectionalLight(0xccffff, 0.81);
+    light2.position.set(1,2,15);
+    scene.add(light2);
 }
-
-// const groundGeometry = new THREE.PlaneBufferGeometry(50, 50);
-// const groundMaterial = new THREE.MeshPhongMaterial({color: 0xCC8866});
-// const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-// groundMesh.rotation.x = Math.PI * -.5;
-// groundMesh.receiveShadow = true;
-// scene.add(groundMesh);
 
 const carWidth = GearGenerator.carWidth;
 const carHeight = GearGenerator.carHeight;
@@ -84,35 +120,12 @@ const carLength = GearGenerator.carLength;
 const chainLink = new THREE.Object3D();
 scene.add(chainLink);
 
-
-////////////////////////////////////////////////////////////////////
-// scene.add(BespokeGeo.ring(10,5,2,18));
-// /*let*/ sprocketOne = BespokeGeo.sprocket(30,0,2.05,0);
-// // sprocketOne.rotation.x = Math.PI/2;
-// scene.add(sprocketOne);
-// // scene.add(BespokeGeo.ring(10,5,2,18));
-// /*let*/ sprocketTwo = BespokeGeo.sprocket(25,0,2.05,0.09);
-// // sprocketTwo.rotation.x = Math.PI/2;
-// scene.add(sprocketTwo);
-// // scene.add(BespokeGeo.ring(10,5,2,18));
-// /*let*/ sprocketThree = BespokeGeo.sprocket(20,0,2.05,0.18);
-// // sprocketThree.rotation.x = Math.PI/2;
-// scene.add(sprocketThree);
-// // scene.add(BespokeGeo.ring(10,5,2,18));
-// // /*let*/ sprocketFour = BespokeGeo.sprocket(10,0,2.05,0.27);
-// scene.add(sprocketFour);
-// scene.add(BespokeGeo.ring(10,5,2,18));
-// /*let*/ sprocketFive = BespokeGeo.sprocket(2,0,2.05,0.48);
-// sprocketFour.rotation.x = Math.PI/2;
-// scene.add(sprocketFive);
-// scene.add(BespokeGeo.sprocket(52));
-///////////////////////////////////////////////////////////////////
-
 const bodyGeometry = new THREE.BoxBufferGeometry(carWidth, carHeight, carLength);
 const bodyMaterial = new THREE.MeshStandardMaterial(
     {color: 0xeecc00,metalness:0.6,roughness:0.05}
 );
-const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+const bodyMesh = new THREE.Mesh(bodyGeometry, materialX3);
+// const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
 bodyMesh.position.y = 0;
 // bodyMesh.position.y = 1.4;
 bodyMesh.castShadow = true;
@@ -137,7 +150,8 @@ const wheelPositions = [
 ];
 
 /*const wheelMeshes =*/ wheelPositions.map((position) => {
-    let mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
+    let mesh = new THREE.Mesh(wheelGeometry, materialX3);
+    // let mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
     mesh.position.set(...position);
     mesh.rotation.z = Math.PI/2;
     mesh.castShadow =  true;
@@ -145,150 +159,41 @@ const wheelPositions = [
     return mesh;
 });
 
-// let leftGearTeeth = GearGenerator.leftTeethCount;
-// let rightGearTeeth = GearGenerator.rightTeethCount;
-let leftGearTeeth = rearTeethCount;
-let rightGearTeeth = paddleTeethCount;
-// let radiusL = GearGenerator.radius(leftGearTeeth);//RL
 let radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
 let radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
 
 let sprocketCentreHeight = Math.max(radiusL,radiusR)+wheelRadius*1.5;
 const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
-let shape = new THREE.Shape();
-
-//small gear (Left) from circle
-let gearParams = [];
 
 let extrudeSettings;
-let geometry;
-let material;
-let mesh;
+// let material;
 let sprocketToothed;
 for(let j = 0;j < rearTeethSetArray.length; j++){ 
-    gearParams = [];   
-    shape = new THREE.Shape();
-    gearParams=leftGearPoints(rearTeethSetArray[j],0,0,0,sprocketCentreHeight);
-    /*let*/ sprocketToothed = BespokeGeo.sprocket(rearTeethSet[j],0,sprocketCentreHeight,-carWidth/4 + j*GearGenerator.rearSprocketZSpacing);
-// sprocketOne.rotation.x = Math.PI/2;
+sprocketToothed = BespokeGeo.sprocket(rearTeethSet[j],0,sprocketCentreHeight,-carWidth/4 + j*GearGenerator.rearSprocketZSpacing);
+
 toothedGears.push(sprocketToothed);
 scene.add(sprocketToothed);
-    shape.moveTo(gearParams[0][2],gearParams[0][3]);
-
-    for (let i = 1; i < gearParams.length; i++){
-        shape.quadraticCurveTo(
-            ...gearParams[i]
-            );
-    }
-    
 
 
 extrudeSettings = GearGenerator.extrudeSettings;
 
-geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-material = new THREE.MeshStandardMaterial( { color: 0x848080,roughness:0.05, metalness: 0} );
-mesh = null;
-// mesh = new THREE.Mesh( geometry, material ) ;
-// mesh.position.z = -carWidth/4 + j*GearGenerator.rearSprocketZSpacing;
-// scene.add( mesh );
+
+// material = new THREE.MeshStandardMaterial( { color: 0x848080,roughness:0.05, metalness: 0} );
+
 }//end of rear sprocket set 'for loop'
 
 
-//test large gear (Right) from circle
-shape = new THREE.Shape();
-gearParams = [];
-gearParams=rightGearPoints(frontTeethSetArray[0],0,0,0,sprocketCentreHeight);
 for(let j = 0; j<frontTeethSetArray.length;j++){
 sprocketToothed = BespokeGeo.sprocket(frontTeethSetArray[(frontTeethSetArray.length-j-1)],GearGenerator.sprocketCentreInterval,sprocketCentreHeight,-carWidth/4 + (-frontTeethSetArray.length+1 + j)*GearGenerator.rearSprocketZSpacing - GearGenerator.rightSprocketCentreZOffset);
-// sprocketOne.rotation.x = Math.PI/2;
+
 toothedGears.push(sprocketToothed);
 
 scene.add(sprocketToothed);
 }
-shape.moveTo(gearParams[0][2],gearParams[0][3]);
-
-for (let i = 1; i < gearParams.length; i++){
-    shape.quadraticCurveTo(
-        ...gearParams[i]
-        );
-}
-
-geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-// mesh = new THREE.Mesh( geometry, material ) ;
-// mesh.position.z = -carWidth/4-GearGenerator.rightSprocketCentreZOffset;
-// scene.add( mesh );
-
-// //////////////TEST INTERNAL HOLE/////////////////
 
 
-//   function drawShape() {
-//     // create a basic shape
-//     var shape4 = new THREE.Shape();
-//     // startpoint
-//     shape4.moveTo(10, 10);
-//     // straight line upwards
-//     shape4.lineTo(10, 40);
-//     // the top of the figure, curve to the right
-//     shape4.bezierCurveTo(15, 25, 25, 25, 30, 40);
-//     // spline back down
-//     shape4.splineThru(
-//     [new THREE.Vector2(32, 30),
-//     new THREE.Vector2(28, 20),
-//     new THREE.Vector2(30, 10),
-//     ])
-//     // curve at the bottom
 
-//     shape4.quadraticCurveTo(20, 15, 10, 10);
-//     // add 'eye' hole one
-//     var hole1 = new THREE.Path();
-//     // hole1.absellipse(16, 24, 2, 3, Math.PI * 2,0, true);
-//     hole1.absellipse(16, 24, 2, 3, Math.PI * 2,0, true);
-//     shape4.holes.push(hole1);
-//     // add 'eye hole 2'
-//     var hole2 = new THREE.Path();
-//     hole2.absellipse(23, 24, 2, 3, 0, Math.PI * 2, true);
-//     shape4.holes.push(hole2);
-//     // add 'mouth'
-//     var hole3 = new THREE.Path();
-//     hole3.absarc(20, 16, 2, 0, Math.PI, true);
-//     shape4.holes.push(hole3);
-//     // return the shape
-//     return shape4;
-//     }
-
-//     const extrudeSettings4 = {
-//         steps: 3,  
-//         depth: 2,  
-//         bevelEnabled: true,  
-//         bevelThickness: 1,  
-//         bevelSize: .5,  
-//         bevelSegments: 3
-//         // curveSegments: 3
-//       };
-      
-
-//     // let geometry5 = createMesh(new THREE.ExtrudeGeometry(drawShape(),extrudeSettings4));
-//     // let geometry5 = new THREE.ShapeGeometry(drawShape());
-//     let geometry5 = new THREE.ExtrudeGeometry(drawShape(),extrudeSettings4);
-//     geometry5.computeVertexNormals();
-//     // let geometry6 = BufferGeometryUtils.mergeVertices(geometry5);
-//     // geometry6.computeVertexNormals();
-//     let material5 = new THREE.MeshPhongMaterial( { color: 0x848080});//,roughness:0.05, metalness: 0} );
-//     material5.side = THREE.DoubleSide;
-//     material5.needsUpdate = true;
-//     // material5.flatShading = true;
-//     material5.flatShading = false;
-    
-//     let mesh5 = new THREE.Mesh(geometry5,material5);
-//     scene.add(mesh5);
-
-//     // let buffgeom = new THREE.BufferGeometry();
-// // buffgeom.fromGeometry(geometry5);
-// // let mat = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-// // let mes = new THREE.Mesh(buffgeom, mat);
-// // scene.add(mes);
-// ////////////////////////////////////////////////
 
 let noOfLinks = GearGenerator.noOfLinks;
 let linkMeshes = [];
@@ -365,8 +270,18 @@ function resizeRendererToDisplaySize(renderer){
     return needResize
 }
 
+// const controls = new OrbitControls( camera, renderer.domElement );
+// controls.addEventListener( 'change', render ); // use if there is no animation loop
+// controls.minDistance = 2;
+// controls.maxDistance = 1000;
+// controls.target.set( 0.1, 0.1, 0.2 );
+// controls.update();
 
 function render(time) {
+
+    let renderTarget, cubeMap;
+    renderTarget = hdrCubeRenderTarget;
+	cubeMap = hdrCubeMap;
         
     time *= 0.001;
 
@@ -391,18 +306,17 @@ function render(time) {
     linkMeshes[k].lookAt(tankXTarget.x, tankXTarget.z *-1, tankXTarget.y);
     }
 
+    const newEnvMap = renderTarget ? renderTarget.texture : null;
     //rotate sprockets
     for(let i = 0; i < toothedGears.length;i++){
         // toothedGears[i].rotation.y = 0.0065*speed2;
 
         toothedGears[i].rotation.y = 0.39*speed2*time;
+        toothedGears[i].material = materialX2;
+        toothedGears[i].material.envMap = newEnvMap;
+        toothedGears[i].material.needsUpdate = true;
+        materialX3.envMap = newEnvMap;
     }
-    // console.log(toothedGears.length);
-    // sprocketOne.rotation.y += 0.02;
-    // sprocketTwo.rotation.y += 0.02;
-    // sprocketThree.rotation.y += 0.02;
-    // sprocketFour.rotation.y += 0.02;
-    // sprocketFive.rotation.y += 0.02;
     
     // const controls = new OrbitControls( camera, renderer.domElement );
     // controls.addEventListener( 'change', render ); // use if there is no animation loop
@@ -410,7 +324,9 @@ function render(time) {
     // controls.maxDistance = 1000;
     // controls.target.set( 0.1, 0.1, 0.2 );
     // controls.update();
+    // scene.background = cubeMap;
 
+    renderer.toneMappingExposure = 2.312;
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);

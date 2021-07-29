@@ -32,7 +32,11 @@ const GearGenerator = {//shared parameters
     rightTeethCount: rightTeethCount,
 
     rightSprocketCentreZOffset: -1.5,
-    rearSprocketZSpacing:0.1
+    rearSprocketZSpacing:0.1,
+
+    fiftyTwoAngularVelocity: 22,
+    extensionGrooveAngle: 8, //angle from rotation axis in degrees
+    extensionTipAngle:15     //angle from rotation axis in degrees
 };
 
 // let radiusR = GearGenerator.radius(rightTeethCount);
