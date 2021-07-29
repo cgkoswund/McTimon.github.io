@@ -856,11 +856,11 @@ let BespokeGeo = {
             normalAops = normalDops = [Math.cos(thetaLoopB)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(thetaLoopB)*Math.sin(thetaBendGroove)];
             uvAops= uvBops= uvCops= uvDops = [0,0];
    
-            ringVerts.push (...MeshOps.makeQuadFace(
-               vertAops,vertBops,vertCops,vertDops,
-               normalAops,normalBops,normalCops,normalDops,
-               uvAops,uvBops,uvCops,uvDops
-           ));
+         //    ringVerts.push (...MeshOps.makeQuadFace(
+         //       vertAops,vertBops,vertCops,vertDops,
+         //       normalAops,normalBops,normalCops,normalDops,
+         //       uvAops,uvBops,uvCops,uvDops
+         //   ));
           }
        }rGearFlats = rUnknownA;
        //////rLoop --> rPitch (grooves)
@@ -964,6 +964,53 @@ for(let i = 0; i < teethCount; i++){
       
 
        //////rLoop --> rPitch (grooves)
+
+       //////rLoop --> rPitch (grooves) [top repeat]
+      //  let thetaGroove = Math.PI/2 - 2*Math.PI/(4*teethCount);
+      //  let thetaGap = Math.PI/2 - thetaGroove;
+      //  let thetaGrooveITR = thetaGroove/sprocketSectionSegments;
+      //  let thetaLoopA, thetaLoopB;
+      //  let rUnknownA,rUnknownB,thetaXA,thetaQA,thetaXB,thetaQB; 
+       for(let i = 0; i<teethCount;i++){
+          for(let j = 0; j < sprocketSectionSegments*2; j++){
+            let normalDir = [0,1,0];
+            thetaXA = Math.PI/2 - thetaGap - (j+1)*thetaGrooveITR;
+            thetaXB = Math.PI/2 - thetaGap - (j)*thetaGrooveITR;
+            thetaQA = Math.asin(rGroove*Math.sin(thetaXA)/rUnknownA);
+            thetaQB = Math.asin(rGroove*Math.sin(thetaXB)/rUnknownB);
+            rUnknownA = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXA));
+            rUnknownB = Math.sqrt(rGroove*rGroove + rPitch*rPitch - 2*rGroove*rPitch*Math.cos(thetaXB));
+            
+            let rAx= rPitch*Math.cos(i*thetaOne)+rGroove*Math.cos(Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR);
+            let rBx= rPitch*Math.cos((i)*thetaOne)+rGroove*Math.cos(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
+            let rAy= rPitch*Math.sin(i*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j+1)*thetaGrooveITR);
+            let rBy= rPitch*Math.sin((i)*thetaOne)+rGroove*Math.sin(Math.PI/2+i*thetaOne + thetaGap + (j)*thetaGrooveITR);
+            let rAz= sprocketInnerRingHeight-(rPitch-rLoop)*Math.tan(thetaBendGroove);
+            thetaLoopA = thetaQA + i*thetaOne;//Math.atan(rAy/rAx);
+            thetaLoopB = thetaQB + i*thetaOne;//Math.atan(rBy/rBx);
+
+
+            let vertAops, vertBops, vertCops, vertDops;
+            let normalAops, normalBops, normalCops, normalDops;
+            let uvAops, uvBops, uvCops, uvDops;
+            vertAops = [rAx,  rAz,  rAy];
+            vertBops = [rLoop*Math.cos(thetaLoopA),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopA)];
+            vertCops = [rLoop*Math.cos(thetaLoopB),  sprocketInnerRingHeight,  rLoop*Math.sin(thetaLoopB)];
+            vertDops = [rBx,  rAz,  rBy];
+
+            normalBops =  normalCops = [Math.cos(thetaLoopA)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(thetaLoopA)*Math.sin(thetaBendGroove)];
+            normalAops = normalDops = [Math.cos(thetaLoopB)*Math.sin(thetaBendGroove),Math.cos(thetaBendGroove),Math.sin(thetaLoopB)*Math.sin(thetaBendGroove)];
+            uvAops= uvBops= uvCops= uvDops = [0,0];
+   
+            ringVerts.push (...MeshOps.makeQuadFace(
+               vertAops,vertBops,vertCops,vertDops,
+               normalAops,normalBops,normalCops,normalDops,
+               uvAops,uvBops,uvCops,uvDops
+           ));
+          }
+       }rGearFlats = rUnknownA;
+       //////rLoop --> rPitch (grooves) [top repeat]
+
        //////rLoop --> rPitch (flats)
 for(let i = 0; i < teethCount; i++){
       for(let j=0; j<sprocketSectionSegments*1;j++){//cap top

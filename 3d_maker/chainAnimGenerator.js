@@ -6,3 +6,12 @@
 -take speed as input to move points along
 
 */
+
+//curve
+let curvePoints = [];
+
+let ChainAnimGenerator = {
+    points: function(rearTeethCount, frontTeethCount){
+        
+    }
+}

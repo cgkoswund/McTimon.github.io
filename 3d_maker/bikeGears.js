@@ -356,7 +356,7 @@ function render(time) {
         frontToothedGears[i].material.needsUpdate = true;
         // materialX3.envMap = newEnvMap;
     }
-    renderer.toneMappingExposure = 0.5;
+    renderer.toneMappingExposure = 0.75;
     renderer.render(scene, camera);
 
     requestAnimationFrame(render);

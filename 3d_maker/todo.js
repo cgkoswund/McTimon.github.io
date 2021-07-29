@@ -9,7 +9,7 @@
 -fill in back faces - DONE
 -use stool code to change from cubemap to equirectangular - DONE
 -set overall "52 engaged angular speed", the calculate everything else from it - DONE
-
+//slant the teeth, then slant the tip too - DONE
 
 
 ---------------------------------------------------
@@ -17,7 +17,7 @@
 
 /*---------------------PENDING----------------------
 //centre the animation based on target window size 
-//slant the teeth, then slant the tip too
+
 //better chain models (just do this in blender)
 -Make sprocket thinner, make them a bit further apart, add separator rings
 //better chain animation (math based, incorporate speed calc)
