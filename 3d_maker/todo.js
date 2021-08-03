@@ -10,13 +10,14 @@
 -use stool code to change from cubemap to equirectangular - DONE
 -set overall "52 engaged angular speed", the calculate everything else from it - DONE
 //slant the teeth, then slant the tip too - DONE
-
+//create dom on the fly like helmet example to fix hdri issue - DONE (something else worked!)
 
 ---------------------------------------------------
 */
 
 /*---------------------PENDING----------------------
 //centre the animation based on target window size 
+
 
 //better chain models (just do this in blender)
 -Make sprocket thinner, make them a bit further apart, add separator rings

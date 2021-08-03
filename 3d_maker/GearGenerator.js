@@ -36,7 +36,8 @@ const GearGenerator = {//shared parameters
 
     fiftyTwoAngularVelocity: 22,
     extensionGrooveAngle: 8, //angle from rotation axis in degrees
-    extensionTipAngle:15     //angle from rotation axis in degrees
+    extensionTipAngle:15,     //angle from rotation axis in degrees
+    chainLinkLength: 0.3
 };
 
 // let radiusR = GearGenerator.radius(rightTeethCount);
