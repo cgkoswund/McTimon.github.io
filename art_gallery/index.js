@@ -4,6 +4,7 @@
 
 
 			//limits: x--> (-135,135), z--> (-70,70);
+			document.getElementById('blocker').style.visibility="hidden";
 
 			let camera, scene, renderer, controls, rendererNew;
 
@@ -218,6 +219,7 @@
 				renderer.toneMappingExposure = 0.75
 				;
 				document.body.appendChild( renderer.domElement );
+				renderer.domElement.style.visibility="hidden";
 
 				//
 
@@ -411,3 +413,22 @@
 				// console.log(camera.position);
 
 			}
+
+			document.onreadystatechange = function () {
+				let state = document.readyState;					
+				// console.log("loading");
+				document.getElementById('blocker').style.visibility="hidden";
+				if (state == 'interactive') {
+					// document.getElementById('load').style.visibility="visible";
+					
+
+				} else if (state == 'complete') {
+					setTimeout(function(){
+						document.getElementById('interactive');
+						document.getElementById('load').style.visibility="hidden";
+						document.getElementById('blocker').style.visibility="visible";
+						renderer.domElement.style.visibility="visible";
+						// console.log("loaded");
+					},1000);
+				}
+}
