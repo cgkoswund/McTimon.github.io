@@ -669,7 +669,7 @@ function setActiveRearGear(activeRearGear,activeFrontGear){
     
 }
 
-// getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
+getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
 // main(["30","25","20","16","8"],["40","30", "20","10","8"],0,0,generateChainLinks);
 
 
