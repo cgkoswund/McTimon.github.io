@@ -54,8 +54,8 @@ function handleMove(e) {
         distanceX = startJoystickX - e.touches[0].pageX; //- canvas.offsetLeft - playerWidth / 2;
         distanceY = startJoystickY - e.touches[0].pageY;// - canvas.offsetTop - playerHeight / 2;
 
-        movableJoyStick.style.bottom = distanceX + 20 + "px";
-        movableJoyStick.style.left = distanceX + 20 + "px";
+        movableJoyStick.style.bottom = -distanceX + 20 + "px";
+        movableJoyStick.style.left = -distanceX + 20 + "px";
 
         // output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
         e.preventDefault();
