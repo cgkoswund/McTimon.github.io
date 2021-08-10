@@ -28,6 +28,11 @@ const color = new THREE.Color();
 init();
 animate();
 
+let movableJoyStick = document.querySelector("#innerCircle");
+movableJoyStick.style.bottom = "20px";
+movableJoyStick.style.left = "20px";
+
+
 function init() {
 
     camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1000 );
