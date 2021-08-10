@@ -32,7 +32,72 @@ let movableJoyStick = document.querySelector("#innerCircle");
 movableJoyStick.style.bottom = "20px";
 movableJoyStick.style.left = "20px";
 
+var el = document.querySelector("#innerCircle");
+el.addEventListener("touchstart", handleStart);
+el.addEventListener("touchmove", handleMove);
+el.addEventListener("touchend", handleEnd);
+el.addEventListener("touchcancel", handleCancel);
 
+function handleStart(e) {
+    if(e.touches) {
+        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        e.preventDefault();
+    }
+}
+
+function handleMove(e) {
+    if(e.touches) {
+        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        e.preventDefault();
+    }
+}
+
+function handleEnd(e) {
+    if(e.touches) {
+        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        e.preventDefault();
+    }
+}
+
+function handleCancel(e) {
+    if(e.touches) {
+        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        e.preventDefault();
+    }
+}
+
+/*
+var box2 = document.getElementById('box2'),
+    boxleft, // left position of moving box
+    startx, // starting x coordinate of touch point
+    dist = 0, // distance traveled by touch point
+    touchobj = null // Touch object holder
+ 
+    box2.addEventListener('touchstart', function(e){
+        touchobj = e.changedTouches[0] // reference first touch point
+        boxleft = parseInt(box2.style.left) // get left position of box
+        startx = parseInt(touchobj.clientX) // get x coord of touch point
+        e.preventDefault() // prevent default click behavior
+    }, false)
+ 
+    box2.addEventListener('touchmove', function(e){
+        touchobj = e.changedTouches[0] // reference first touch point for this event
+        var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
+        // move box according to starting pos plus dist
+        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
+        box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
+        e.preventDefault()
+    }, false)
+
+    */
 function init() {
 
     camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1000 );
@@ -51,7 +116,7 @@ function init() {
 
     controls.minDistance = 2;
     controls.maxDistance = 1000;
-    controls.target.set(1,10,0); 
+    controls.target.set(-1,10,0); 
     controls.update();
 
     const blocker = document.getElementById( 'blocker' );
@@ -263,7 +328,7 @@ pmremGenerator.dispose();
 
 
 const bearingLoader = new GLTFLoader().setPath( 'models/simple/' );
-bearingLoader.load( 'simple_gallery_room.gltf', function ( gltf ) {
+bearingLoader.load( 'simple_cave.gltf', function ( gltf ) {
 /*
 gltf.scene.traverse( function ( child ) {
 
