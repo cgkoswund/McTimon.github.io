@@ -1,5 +1,5 @@
 			import * as THREE from './three.module.js';
-			import { PointerLockControls } from './PointerLockControls.js';
+			import { MobileControls } from './MobileControls.js';
 			import { GLTFLoader } from './GLTFLoader.js';import { RGBELoader } from './RGBELoader.js';
 
 
@@ -40,14 +40,14 @@
 				light.position.set( 0.5, 1, 0.75 );
 				scene.add( light );
 
-				controls = new PointerLockControls( camera, document.body );
+				controls = new MobileControls( camera, document.body );
 
 				const blocker = document.getElementById( 'blocker' );
 				const instructions = document.getElementById( 'instructions' );
 
 				instructions.addEventListener( 'click', function () {
 
-					controls.lock();
+					controls.lock()//;
 
 				} );
 

@@ -1,7 +1,12 @@
 import {
 	Euler,
 	EventDispatcher,
-	Vector3
+	Vector3,
+	MOUSE,
+	Quaternion,
+	Spherical,
+	TOUCH,
+	Vector2,
 } from './three.module.js';
 
 const _euler = new Euler( 0, 0, 0, 'YXZ' );
@@ -13,7 +18,7 @@ const _unlockEvent = { type: 'unlock' };
 
 const _PI_2 = Math.PI / 2;
 
-class PointerLockControls extends EventDispatcher {
+class MobileControls extends EventDispatcher {
 
 	constructor( camera, domElement ) {
 
@@ -29,6 +34,22 @@ class PointerLockControls extends EventDispatcher {
 		this.domElement = domElement;
 		this.isLocked = false;
 
+		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+
+		// Touch fingers
+		this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+
+		const STATE = {
+			NONE: - 1,
+			ROTATE: 0,
+			DOLLY: 1,
+			PAN: 2,
+			TOUCH_ROTATE: 3,
+			TOUCH_PAN: 4,
+			TOUCH_DOLLY_PAN: 5,
+			TOUCH_DOLLY_ROTATE: 6
+		};
+
 		// Set to constrain the pitch of the camera
 		// Range is 0 to Math.PI radians
 		this.minPolarAngle = 0; // radians
@@ -38,7 +59,7 @@ class PointerLockControls extends EventDispatcher {
 
 		function onMouseMove( event ) {
 
-			if ( scope.isLocked === false ) return;
+			// if ( scope.isLocked === false ) return;
 
 			const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 			const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -60,13 +81,13 @@ class PointerLockControls extends EventDispatcher {
 
 			if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
 
-				scope.dispatchEvent( _lockEvent );
+				// scope.dispatchEvent( _lockEvent );
 
 				scope.isLocked = true;
 
 			} else {
 
-				scope.dispatchEvent( _unlockEvent );
+				// scope.dispatchEvent( _unlockEvent );
 
 				scope.isLocked = false;
 
@@ -143,7 +164,7 @@ class PointerLockControls extends EventDispatcher {
 
 		this.lock = function () {
 
-			this.domElement.requestPointerLock();
+			// this.domElement.requestPointerLock();//
 
 		};
 
@@ -159,4 +180,4 @@ class PointerLockControls extends EventDispatcher {
 
 }
 
-export { PointerLockControls };
+export { MobileControls };
