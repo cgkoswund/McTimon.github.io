@@ -7,6 +7,26 @@ body {
 	line-height: 24px;
 	overscroll-behavior: none;
 }
+
+/* #outerSvg{
+
+} */
+
+#outerCircle{
+	position: fixed;
+	z-index: 20;
+	bottom: 20px;
+	left: 20px;
+
+}
+
+#innerCircle{
+	position: fixed;
+	z-index: 21;
+	bottom: 20px;
+	left: 20px;
+
+}
 /* 
 #load{
     width:100%;

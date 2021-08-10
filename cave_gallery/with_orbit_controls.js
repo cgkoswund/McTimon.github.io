@@ -44,6 +44,11 @@ function init() {
     // controls = new MobileControls( camera, document.body );
     controls = new OrbitControls( camera, document.body );
 
+    controls.minDistance = 2;
+    controls.maxDistance = 1000;
+    controls.target.set(1,10,0); 
+    controls.update();
+
     const blocker = document.getElementById( 'blocker' );
     const instructions = document.getElementById( 'instructions' );
 
@@ -407,10 +412,23 @@ function animate() {
 
     prevTime = time;
 
+    // let temp = controls.target;
+    // controls.target = camera.position;
+    // camera.position.x = temp.x;
+    // camera.position.y = temp.y;
+    // camera.position.z = temp.z;
+    
+    // console.log(temp.x);
+
     if(camera.position.x>135)camera.position.x = 135;
     if(camera.position.x<-135)camera.position.x = -135;
     if(camera.position.z>70)camera.position.z = 70;
     if(camera.position.z<-70)camera.position.z = -70;
+
+    // controls.target.x(camera.position.x, camera.position.y,camera.position.z);
+    // controls.update();/
+
+    // camera.position.y = 10;
 
     renderer.render( scene, camera );
     // console.log(camera.position);

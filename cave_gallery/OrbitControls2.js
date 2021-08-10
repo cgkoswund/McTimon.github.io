@@ -85,10 +85,10 @@ class OrbitControls extends EventDispatcher {
 		this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
 
 		// Mouse buttons
-		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+		this.mouseButtons = { LEFT: MOUSE.ROTATE };//, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
 
 		// Touch fingers
-		this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+		this.touches = { ONE: TOUCH.ROTATE };//, TWO: TOUCH.DOLLY_PAN };
 
 		// for reset
 		this.target0 = this.target.clone();
@@ -243,6 +243,7 @@ class OrbitControls extends EventDispatcher {
 
 				position.copy( scope.target ).add( offset );
 
+				// scope.object.lookAt( scope.object );
 				scope.object.lookAt( scope.target );
 
 				if ( scope.enableDamping === true ) {
