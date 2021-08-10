@@ -31,45 +31,54 @@ animate();
 let movableJoyStick = document.querySelector("#innerCircle");
 movableJoyStick.style.bottom = "20px";
 movableJoyStick.style.left = "20px";
+let startJoystickX, startJoystickY;
+let distanceX, distanceY;
 
-var el = document.querySelector("#innerCircle");
-el.addEventListener("touchstart", handleStart);
-el.addEventListener("touchmove", handleMove);
-el.addEventListener("touchend", handleEnd);
-el.addEventListener("touchcancel", handleCancel);
+// var mova = document.querySelector("#innerCircle");
+movableJoyStick.addEventListener("touchstart", handleStart);
+movableJoyStick.addEventListener("touchmove", handleMove);
+movableJoyStick.addEventListener("touchend", handleEnd);
+movableJoyStick.addEventListener("touchcancel", handleCancel);
 
 function handleStart(e) {
     if(e.touches) {
-        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
-        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
-        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        startJoystickX = e.touches[0].pageX;// - canvas.offsetLeft - playerWidth / 2;
+        startJoystickY = e.touches[0].pageY;// playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        // output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
         e.preventDefault();
     }
 }
 
 function handleMove(e) {
     if(e.touches) {
-        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
-        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
-        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        distanceX = startJoystickX - e.touches[0].pageX; //- canvas.offsetLeft - playerWidth / 2;
+        distanceY = startJoystickY - e.touches[0].pageY;// - canvas.offsetTop - playerHeight / 2;
+
+        movableJoyStick.style.bottom = distanceX + 20 + "px";
+        movableJoyStick.style.left = distanceX + 20 + "px";
+
+        // output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
         e.preventDefault();
     }
 }
 
 function handleEnd(e) {
     if(e.touches) {
-        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
-        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
-        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+
+        movableJoyStick.style.bottom = "20px";
+        movableJoyStick.style.left = "20px";
+        // playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        // playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        // output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
         e.preventDefault();
     }
 }
 
 function handleCancel(e) {
     if(e.touches) {
-        playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
-        playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
-        output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
+        // playerX = e.touches[0].pageX - canvas.offsetLeft - playerWidth / 2;
+        // playerY = e.touches[0].pageY - canvas.offsetTop - playerHeight / 2;
+        // output.textContent = `Touch:  x: ${playerX}, y: ${playerY}`;
         e.preventDefault();
     }
 }
