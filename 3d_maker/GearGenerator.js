@@ -31,7 +31,7 @@ const GearGenerator = {//shared parameters
     leftTeethCount: leftTeethCount,
     rightTeethCount: rightTeethCount,
 
-    rightSprocketCentreZOffset: -1.5,
+    rightSprocketCentreZOffset: 0,//-1.5,
     rearSprocketZSpacing:0.1,
 
     fiftyTwoAngularVelocity: 22,
