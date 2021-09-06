@@ -746,8 +746,6 @@ function resizeRendererToDisplaySize(rendererNew){
     return needResize
 }
 
-
-
 }/////////////END OF RESET ChainPosition
 
 
