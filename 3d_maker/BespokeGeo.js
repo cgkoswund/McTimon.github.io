@@ -101,7 +101,7 @@ let BespokeGeo = {
         ));
         
         const loader = new THREE.TextureLoader();
-          const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
+         //  const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
         
         const material_z = new THREE.MeshPhongMaterial({color: 0xcccc00, map:texture});
         
@@ -231,7 +231,7 @@ let BespokeGeo = {
         ));
         
         const loader = new THREE.TextureLoader();
-          const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
+         //  const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
         
         const cylinderMaterial = new THREE.MeshPhongMaterial({color: 0xcccc00, map:texture});
         
@@ -727,7 +727,7 @@ let BespokeGeo = {
         ));
         
         const loader = new THREE.TextureLoader();
-          const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
+         //  const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
         
         const ringMaterial = new THREE.MeshPhongMaterial({color: 0xcccc00, map:texture});
         
@@ -1671,7 +1671,7 @@ for(let i = 0; i < teethCount; i++){
         ));
         
         const loader = new THREE.TextureLoader();
-          const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/star.png');
+          const texture = loader.load('https://threejsfundamentals.org/threejs//star.png');
         
         const ringMaterial = new THREE.MeshPhongMaterial({color: 0xcccc00, map:texture});
         const ringMaterial2 = new THREE.MeshStandardMaterial( { color: 0xf0eae8,roughness:0.1, metalness: 0.8} );

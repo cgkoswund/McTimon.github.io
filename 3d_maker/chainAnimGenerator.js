@@ -63,6 +63,23 @@ let ChainAnimGenerator = {
 
         //iterator drives animation in 4 parts: arcL, L(lower), arcR, L(above)
         return chainParams;
+    },
+    moveChain: function(rearTeethCount,frontTeethCount,chainPiecesSet,time){
+        //
+        let outerSlateArray,innerSlateArray,bearingArray,pivotArray;
+        outerSlateArray = chainPiecesSet[0]
+        innerSlateArray = chainPiecesSet[1]
+        bearingArray = chainPiecesSet[2]
+        pivotArray = chainPiecesSet[3];
+
+        //position rings & save to array
+            //position items on arcL
+            //position items on L below
+            //position items on arcR
+            //position items on L above
+        //position bearings from copy or ring positions
+        //position slates from midpoint of 2 rings and make angle from line joining them
+
     }
 
     
