@@ -1,4 +1,4 @@
-const carWidth = 0.05;
+const carWidth = 0.02;
 let leftTeethCount= 15;
 let rightTeethCount= 150;
 
@@ -15,7 +15,7 @@ const GearGenerator = {//shared parameters
     },
 
     radius: function(teethCount){
-        let radius = 2*teethCount/42;
+        let radius = 2.0*teethCount/42.0;
         return radius
     },
 
@@ -23,6 +23,7 @@ const GearGenerator = {//shared parameters
     carHeight : 0.15,
     carLength : 0.4,
     sprocketCentreInterval: 5/*2 + 5 + 5*/,
+
     wheelRadius  :.1,
     wheelThickness : .05,
     wheelSegments : 16,
@@ -32,12 +33,15 @@ const GearGenerator = {//shared parameters
     rightTeethCount: rightTeethCount,
 
     rightSprocketCentreZOffset: 0,//-1.5,
-    rearSprocketZSpacing:0.1,
+    rearSprocketZSpacing:0.03,
+    sprocketThicknessScale:0.3,
 
-    fiftyTwoAngularVelocity: 22,
+    fiftyTwoAngularVelocity: 30*1,//22
     extensionGrooveAngle: 8, //angle from rotation axis in degrees
     extensionTipAngle:15,     //angle from rotation axis in degrees
-    chainLinkLength: 0.3
+    chainLinkLength: 0.3125,
+    chainLinkThickness: 0.04,
+    chainLinkThicknessOuter: 0.06
 };
 
 // let radiusR = GearGenerator.radius(rightTeethCount);

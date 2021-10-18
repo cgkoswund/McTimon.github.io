@@ -15,17 +15,13 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "bearing LP"
+            "name" : "bearing LP.001"
         }
     ],
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "Material.001",
-            "normalTexture" : {
-                "index" : 0,
-                "scale" : 0.4000000059604645
-            },
+            "name" : "ringMaterial",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
                     0.09346278756856918,
@@ -40,7 +36,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Circle.017",
+            "name" : "bearing LP.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -54,33 +50,20 @@
             ]
         }
     ],
-    "textures" : [
-        {
-            "sampler" : 0,
-            "source" : 0
-        }
-    ],
-    "images" : [
-        {
-            "mimeType" : "image/png",
-            "name" : "chain_norm",
-            "uri" : "Textures/chain_norm.png"
-        }
-    ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
             "count" : 204,
             "max" : [
-                0.39165034890174866,
+                0.050151094794273376,
                 0.39164966344833374,
-                0.10030237585306168
+                0.39164894819259644
             ],
             "min" : [
-                -0.39164894819259644,
+                -0.050523072481155396,
                 -0.39164969325065613,
-                -0.10104592889547348
+                -0.39165034890174866
             ],
             "type" : "VEC3"
         },
@@ -123,12 +106,6 @@
             "buffer" : 0,
             "byteLength" : 1536,
             "byteOffset" : 6528
-        }
-    ],
-    "samplers" : [
-        {
-            "magFilter" : 9729,
-            "minFilter" : 9987
         }
     ],
     "buffers" : [

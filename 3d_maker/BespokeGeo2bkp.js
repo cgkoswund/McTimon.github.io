@@ -765,14 +765,14 @@ let BespokeGeo = {
 
         //sprocket params
         let thetaOne = 2*Math.PI/teethCount;
-        let ringSupportThickness = 3.5;
+        let ringSupportThickness = 3;
         let rGearFlats;
         
         let rPitch = fiftyTwoPitchDiameter*teethCount/52;
       //   console.log(teethCount);
       //   console.log(rPitch);
         let radialSum = 2*rPitch*(Math.sin(thetaOne/4));
-        let rGroove = 0.72*radialSum;
+        let rGroove = 0.4*radialSum;
         let rTip = radialSum - rGroove;
         let rInner = rPitch - ringSupportThickness*rGroove;
         let aLittle = 0.2*rGroove;
@@ -869,7 +869,7 @@ let BespokeGeo = {
 
       ////rLoop --> rPitch (flats)
       let thetaFlat = 2*Math.PI/teethCount;
-       let phiFlat=  0.418*thetaFlat;//adjust random num to make it fit
+       let phiFlat=  0.44*thetaFlat;
        let thetaFlatITR = (rTip/radialSum)*1*thetaFlat/sprocketSectionSegments;
 for(let i = 0; i < teethCount; i++){
       for(let j=0; j<sprocketSectionSegments*1;j++){//cap top
