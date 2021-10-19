@@ -128,8 +128,8 @@ let ChainAnimGenerator = {
         let frontRad = GearGenerator.radius(frontTeethCount);        
      
 
-        rearRad = 0.3125/(2*Math.sin(Math.PI/rearTeethCount));
-        frontRad = 0.3125/(2*Math.sin(Math.PI/frontTeethCount));
+        // rearRad = 0.3125/(2*Math.sin(Math.PI/rearTeethCount));
+        // frontRad = 0.3125/(2*Math.sin(Math.PI/frontTeethCount));
         let jFront = frontTeethSet.length - activeFrontGear - 1;//start from the other side of the array
         let jRear = activeRearGear;
         if(frontTeethCount <  rearTeethCount){
@@ -156,7 +156,7 @@ let ChainAnimGenerator = {
         
         
         let distParams = calculateChainLength(rearTeethSetArray,activeRearGear, frontTeethSetArray, activeFrontGear);
-        let totalDist = chainLengthGlobal+0.5;
+        let totalDist = chainLengthGlobal;
         let cycleTime = totalDist/(rearRad*angularSpeedRear);         
         //chainLengthGlobal = totalDist;
         // console.log(totalDist);

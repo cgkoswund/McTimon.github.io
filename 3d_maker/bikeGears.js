@@ -685,15 +685,15 @@ function getTeethCount(rearTeethCount,paddleTeethCount){
         }
     }    
     
-    if(isFirstRun){
-        init(rearTeethCorrected,frontTeethCorrected,0,1,generateChainLinks);
-        isFirstRun = false;
-    }
-    else {
-        console.log("in here");
+    ////if(isFirstRun){
+        ////init(rearTeethCorrected,frontTeethCorrected,0,1,generateChainLinks);
+        ////isFirstRun = false;
+    ////}
+    ////else {
+        
         resetSprocketModels(rearTeethCorrected,frontTeethCorrected,0,0,generateChainLinks);
         setActiveRearGear(activeRearGearGlobal,activeFrontGearGlobal);
-    }
+    ////}
     
 }
 
@@ -713,7 +713,7 @@ function setActiveRearGear(activeRearGearGlobal,activeFrontGearGlobal){
 }
 
 // getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
-//init(["30","24","22","20","18","14","12"],["40","28", "15"],0,1,generateChainLinks);
+init(["30","24","22","20","18","14","12"],["40","28", "15"],0,1,generateChainLinks);
 
 
 window.getTeethCount = getTeethCount;
