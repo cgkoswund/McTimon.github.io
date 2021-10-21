@@ -109,6 +109,59 @@ let ChainAnimGenerator = {
         //iterator drives animation in 4 parts: arcL, L(lower), arcR, L(above)
         return chainParams;
     },
+    positionFlatLink: function(chainPiecesSet,sprocketCentreHeight){
+        let outerSlateArray,innerSlateArray,bearingArray,pivotArray;
+        bearingArray = chainPiecesSet[0]
+        pivotArray = chainPiecesSet[1]
+        outerSlateArray = chainPiecesSet[2]
+        innerSlateArray = chainPiecesSet[3];
+        let k2 = 0;
+        let k3 = 0;
+        let prevIndexInner, prevIndexOuter;
+
+        for(let k = 0; k < bearingArray.length;k++){
+            k2 = Math.floor(k/2)*2;//force even index
+            k3 = k2 + 1; //force odd index
+            prevIndexInner = k2;
+            if(k2 == 0){
+                prevIndexOuter = bearingArray.length-1
+            }
+            else{
+                prevIndexOuter = k2-1;
+            }
+             
+
+        
+        outerSlateArray[k].position.set(
+            (bearingArray[k2].position.x + bearingArray[prevIndexOuter].position.x)/2,
+            (bearingArray[k2].position.y + bearingArray[prevIndexOuter].position.y)/2,
+            (bearingArray[k2].position.z + bearingArray[prevIndexOuter].position.z + ((2*(k%2))-1)*GearGenerator.chainLinkThicknessOuter)/2);  
+        outerSlateArray[k].rotation.set(
+            (bearingArray[prevIndexOuter].rotation.x),
+            (bearingArray[prevIndexOuter].rotation.y),
+            (bearingArray[prevIndexOuter].rotation.z ));  
+
+            // if(Math.abs(bearingArray[k2].rotation.z + bearingArray[prevIndexOuter].rotation.z)< 0.05 && (Math.abs(Math.abs(bearingArray[k2].position.y) - sprocketCentreHeight)<  1)){
+            //     outerSlateArray[k].rotation.z = Math.PI/2;
+            // }
+        
+        innerSlateArray[k].position.set(
+            (bearingArray[k3].position.x + bearingArray[prevIndexInner].position.x)/2,
+            (bearingArray[k3].position.y + bearingArray[prevIndexInner].position.y)/2,
+            (bearingArray[k3].position.z + bearingArray[prevIndexInner].position.z + ((2*(k%2))-1)*GearGenerator.chainLinkThickness)/2);  
+        innerSlateArray[k].rotation.set(
+            (bearingArray[prevIndexInner].rotation.x),
+            (bearingArray[prevIndexInner].rotation.y),
+            (bearingArray[prevIndexInner].rotation.z ));  
+
+            // if(Math.abs(bearingArray[k3].rotation.z + bearingArray[prevIndexInner].rotation.z)< 0.05 && (Math.abs(Math.abs(bearingArray[k3].position.y) - sprocketCentreHeight)<  1)){
+            //     innerSlateArray[k].rotation.z = Math.PI/2;
+            // }
+        
+    
+         }
+    
+        },
     moveChain: function(rearTeethSetArray,activeRearGear,frontTeethSetArray,activeFrontGear,chainPiecesSet,angularSpeedRear,angularSpeedFront,sprocketCentreHeight, frontSprocketZShift,time){
         //
         // console.log(mod(3.5,2));

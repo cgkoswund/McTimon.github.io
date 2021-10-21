@@ -1,3 +1,5 @@
+//dimms are metre x 10
+
 const carWidth = 0.02;
 let leftTeethCount= 15;
 let rightTeethCount= 150;
@@ -15,7 +17,9 @@ const GearGenerator = {//shared parameters
     },
 
     radius: function(teethCount){
-        let radius = 2.0*teethCount/42.0;
+        //assuming 52 radius is 200mm
+        //2*PI*Rx/TeethCountx shd give a fixed chord length.
+        let radius = 2.0*teethCount/52.0;
         return radius
     },
 
@@ -35,13 +39,14 @@ const GearGenerator = {//shared parameters
     rightSprocketCentreZOffset: 0,//-1.5,
     rearSprocketZSpacing:0.03,
     sprocketThicknessScale:0.3,
+    sprocketThickness:0.08, //8mm
 
-    fiftyTwoAngularVelocity: 30*1,//22
-    extensionGrooveAngle: 8, //angle from rotation axis in degrees
-    extensionTipAngle:15,     //angle from rotation axis in degrees
+    fiftyTwoAngularVelocity: 30*0.05*10,//22
+    extensionGrooveAngle: 16, //angle from rotation axis in degrees
+    extensionTipAngle:25,     //angle from rotation axis in degrees
     chainLinkLength: 0.3125,
     chainLinkThickness: 0.04,
-    chainLinkThicknessOuter: 0.06
+    chainLinkThicknessOuter: 0.07
 };
 
 // let radiusR = GearGenerator.radius(rightTeethCount);

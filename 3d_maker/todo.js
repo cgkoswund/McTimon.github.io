@@ -13,22 +13,33 @@
 //create dom on the fly like helmet example to fix hdri issue - DONE (something else worked!)
 //better chain models (just do this in blender) - DONE
 -Make sprocket thinner, make them a bit further apart, add separator rings -DONE -no separator rongs
+-use chordlength ratio to get a general offset for rear gear () - DONE
+
+
 ---------------------------------------------------
 */
 
 /*---------------------PENDING----------------------
 //centre the animation based on target window size 
 
-//
-//better chain animation (math based, incorporate speed calc)
-//set "LOOKAT"/controls orbit centre position to calculate as the centre of the two chains
-//add 'X' or arc braces to inner ring
--potentially pass theme color as rgb values to webview to fake transparency
 --------------------------------------------------------------
 */
 
-/*---------------CHANGE LOG------------------------
-make sprockets thinner
+/*---------------TO DO------------------------
+make sprockets thinner - 
 take out gap, or make very small
+-brushed metal normal texture for flat sides, just fix in photoshop
+-work on speed. remove one-time stuff from renderloop, or try to add flags
+save some things to var instead of calculating every time
+-put some things like curve gen n other duplicate stuff into functions
+-test removing AO
+-remove chainThickness scale n set dim directly
+-finally, remember to remove all console logs n unused files
+-write mod function in bike gears, mod gear angle with speed 
+-try curve res of like 1000/4 to see if link angle misaligns now (as it should), the correct as the average
+*/
+
+/*----------------NOTES-------------------------
+Distances use chain chord length while speeds use arc length.
 
 */

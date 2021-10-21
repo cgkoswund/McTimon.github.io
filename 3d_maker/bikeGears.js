@@ -26,10 +26,21 @@ let camera, scene, rendererNew;
 let oldRGBELoader;
 let envMap;
 
-let chainPiecesSet;
+let linkMeshes;
+
+let chainCurve, chordLengthApprox, chordLengthTrue, chainPoints, chainGeometry,chainMaterial, chainSplineObject, chainPiecesSet;
+
+let frontAngleOffset = 0;
+let rearAngleOffset = 0;
+let hasFrontAngleOffset = false;
+let hasRearAngleOffset = false;
 
 let angularSpeedRear;
+let angularSpeedChord;
 let angularSpeedFront;
+
+let radiusL;// = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
+let radiusR;// = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
 
 let frontSprocketZShift = 0; 
 let adjustedSprocketCentreInterval =GearGenerator.sprocketCentreInterval;
@@ -57,15 +68,19 @@ let noOfLinksOld = GearGenerator.noOfLinks;
 let rearToothedGears = [];
 let frontToothedGears = [];
 let activeFrontGearGlobal, activeRearGearGlobal;
+let fullChainLength;
 
 function init(rearTeethSetArray,frontTeethSetArray,activeRearGear,activeFrontGear, meshGenCallback){
     let chainParams = ChainAnimGenerator.points(rearTeethSetArray,activeRearGear,frontTeethSetArray,activeFrontGear);
     noOfLinksGlobal = chainParams[4];
+    fullChainLength = chainParams[0];
     frontSprocketZShift = -0.5*((rearTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing+(frontTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing);
     activeRearGearGlobal = activeRearGear;
     activeFrontGearGlobal = activeFrontGear;
     angularSpeedRear = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGear];
     angularSpeedFront = GearGenerator.fiftyTwoAngularVelocity/frontTeethSetArray[activeFrontGear];
+    angularSpeedChord = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGearGlobal];
+    
     frontToothedGears = [];
     rearToothedGears = [];
     rearTeethSet = rearTeethSetArray;
@@ -127,8 +142,13 @@ let envMap;
         gltf.scene.traverse( function ( child ) {
 
             if ( child.isMesh ) {
-                const chainScale = 0.25;  
+                const chainScale = 0.1833*chordLengthTrue/chordLengthApprox;  //these vars are undefined at this line but work due to async delay from gltf loader                   
+                // const chainScale = 0.77188*chordLengthOld/chordLength;                     
+                // const chainScale = 0.185;                     
+                // console.log(chordLength); 
+                // const chainScale = 0.25;  
                 switch(child.name){
+
 
                     case 'bearing_LP001':
                         bearingMesh = child;
@@ -144,25 +164,25 @@ let envMap;
                         pivotMat.color.set(0x333333);
                         pivotMat.roughness = 0.5;
                         pivotMat.metalness = 1;
-                        pivotMesh.scale.set(chainScale,chainScale,chainScale);
+                        pivotMesh.scale.set(chainScale/1.3,chainScale,chainScale);
                         break;
                     case 'slate_LP001':
                         slateMesh = child;
                         slateMat = child.material;
                         slateMat.color.set(0x775324);
-                        slateMat.roughness = 0.3;
-                        slateMat.metalness = 1;
-                        slateMesh.scale.set(chainScale,chainScale,chainScale);
+                        slateMat.roughness = 0.25;//0.3;
+                        slateMat.metalness = 0.9;
+                        slateMesh.scale.set(chainScale*2,chainScale,chainScale);
                         break;
                     case 'slate_LPin001':
                         slateMeshIn = child;
                         slateInMat = child.material;
                         slateInMat = child.material;
-                        slateInMat.color.set(0x775324);
-                        slateInMat.roughness = 0.3;
-                        slateInMat.metalness = 1;
+                        slateInMat.color.set(0x553210);
+                        slateInMat.roughness = 0.25;
+                        slateInMat.metalness = 0.9;
                         slateMeshIn.position.z = 0.5;
-                        slateMeshIn.scale.set(chainScale,chainScale,chainScale);
+                        slateMeshIn.scale.set(chainScale*2,chainScale,chainScale);
                         break;
                 }
             }
@@ -294,8 +314,11 @@ const wheelPositions = [
     return mesh;
 });
 
-let radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
-let radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
+radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
+radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
+
+
+
 let maxTeethCount = 0;
 
 for(let i = 0; i < rearTeethSetArray.length;i++){
@@ -309,13 +332,13 @@ for(let i = 0; i < frontTeethSetArray.length;i++){
 let sprocketCentreHeight = GearGenerator.radius(maxTeethCount)+wheelRadius*1.5;
 if(isFirstCameraSetup){
     let extension = 0.2;
-oldControlsTarget = {x:( adjustedSprocketCentreInterval+ radiusR - radiusL) /2 + extension,y:sprocketCentreHeight,z:0};
-oldControlsPosition = {x:(adjustedSprocketCentreInterval + radiusR - radiusL)/2 + extension,y:sprocketCentreHeight,z:20};
+oldControlsTarget = {x:( GearGenerator.sprocketCentreInterval+ radiusR - radiusL) /2 + extension,y:sprocketCentreHeight,z:0};
+oldControlsPosition = {x:(GearGenerator.sprocketCentreInterval + radiusR - radiusL)/2 + extension,y:sprocketCentreHeight,z:20};
 camera.position.set(oldControlsPosition.x,oldControlsPosition.y,oldControlsPosition.z);
 isFirstCameraSetup = false;
 
 }
-let sprocketCentreInterval= adjustedSprocketCentreInterval;  //d
+let sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
 let extrudeSettings;
 let sprocketToothed;
@@ -341,10 +364,11 @@ for(let j = 0; j<frontTeethSetArray.length;j++){
     scene.add(sprocketToothed);
     }//end of front sprocket 'for loop'
 
+    linkMeshes = [];
 
 bodyMesh.position.y = 200;
 
-const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
+//const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
 
 
 composer = new EffectComposer( rendererNew );
@@ -381,6 +405,111 @@ composer.addPass( saoPass );
 // gui.add( saoPass.params, 'saoBlurStdDev', 0.5, 150 );
 // gui.add( saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1 );
 
+let arrayGenPoint = [];
+const arrayGenPointL = [];
+const arrayGenPointR = [];
+const bottomGenPoints = [];
+const topGenPoints = [];
+
+const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
+const curveResolution = 100;//15;//number of curve "handles"
+let interval = (Math.PI-2*aMax)/(curveResolution/2); //angle interval for arcs during spline generation
+let aRanger = aMax;
+let chainTheta = 0;
+let xPoint = 0;
+let yPoint = 0;
+let zPoint = 0;
+
+////chain points
+//move chains out a bit
+let chainExpandFactor = 1;
+//smaller sprocker half points
+for (let i = 0; i < (curveResolution/2); i++){
+    
+    chainTheta = Math.PI/2 + aRanger + interval*i;
+    xPoint = radiusL*Math.cos(chainTheta);
+    yPoint = radiusL*Math.sin(chainTheta) + sprocketCentreHeight;
+    zPoint = -carWidth/4 + 2*activeRearGear*GearGenerator.rearSprocketZSpacing;
+    
+    arrayGenPointL.push(new THREE.Vector3(xPoint,yPoint,zPoint));//append
+}
+
+
+
+chainTheta = 0;
+interval = (Math.PI+2*aMax)/(curveResolution/2); 
+aRanger = Math.PI/2 - aMax;
+
+let jtk =  - activeFrontGear;
+//larger sprocker half points
+for (let j = 0; j < (curveResolution/2); j++){
+    chainTheta = Math.PI + aRanger + interval*(j);
+    xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
+    yPoint = radiusR*Math.sin(chainTheta) + sprocketCentreHeight;
+    zPoint = -carWidth/4 - (activeFrontGear)*2*GearGenerator.rearSprocketZSpacing - frontSprocketZShift;
+
+    arrayGenPointR.push(new THREE.Vector3(xPoint,yPoint,zPoint));//append
+}
+bottomGenPoints.push(arrayGenPointL[curveResolution/2 -1]);
+topGenPoints.push(arrayGenPointR[curveResolution/2 -1]);
+bottomGenPoints.push(arrayGenPointR[0]);
+topGenPoints.push(arrayGenPointL[0]);
+
+let bottomSlantHelper, topSlantHelper,chainCurveL,chainCurveR;
+
+chainCurveL = new THREE.CatmullRomCurve3(arrayGenPointL);
+chainCurveR = new THREE.CatmullRomCurve3(arrayGenPointR);
+bottomSlantHelper = new THREE.CatmullRomCurve3(bottomGenPoints);
+topSlantHelper = new THREE.CatmullRomCurve3(topGenPoints);
+
+let chainPoints2 = chainCurveL.getSpacedPoints(curveResolution); //add LHS curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = bottomSlantHelper.getSpacedPoints(curveResolution); //add bottom curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = chainCurveR.getSpacedPoints(curveResolution);//add RHS curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = topSlantHelper.getSpacedPoints(curveResolution);//add top curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+
+chainCurve = new THREE.CatmullRomCurve3(arrayGenPoint);
+chordLengthTrue = 2*Math.PI*radiusL/rearTeethSetArray[activeRearGear];//2xPIxR/teethcount
+noOfLinksGlobal = Math.round(0.5*chainCurve.getLength()/chordLengthTrue)*2;//force multiples of 2 (outer link inner link alternating)
+
+
+chordLengthApprox= chainCurve.getLength()/noOfLinksGlobal;
+angularSpeedChord = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGearGlobal];
+angularSpeedRear *= chordLengthTrue/chordLengthApprox;
+angularSpeedFront *= chordLengthTrue/chordLengthApprox; //scaling speed to give sprockets same period as looping links
+
+// visualize spaced points 
+
+// const sphereGeomtry = new THREE.SphereBufferGeometry( 0.1 );
+// const sphereMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
+// const spacedPoints = chainCurve.getPoints( 100 );
+
+// for ( let point of spacedPoints ) {
+
+// 	const helper = new THREE.Mesh( sphereGeomtry, sphereMaterial );
+// 	helper.position.copy( point );
+// 	scene.add( helper );
+
+// }
+
 function resizeRendererToDisplaySize(rendererNew){
     const canvas = rendererNew.domElement;
     const width = canvas.clientWidth;
@@ -416,48 +545,110 @@ function render(time) {
             camera.updateProjectionMatrix();
     }
 
-         // move chain ring
 
+    let chainLinkVelocity = angularSpeedChord*radiusL;
+    // console.log("AC" + angularSpeedChord);
+    // console.log("AS" + angularSpeedRear);
+
+    // console.log(noOfLinks2);
+    let pivotPosition = new THREE.Vector3();
+    let pivotTarget = new THREE.Vector3();
+    // pivotPosition = {
+    //     x:radiusL*Math.cos(angularSpeedRear*time),
+    //     y:sprocketCentreHeight + radiusL*Math.sin(angularSpeedRear*time),
+    //     z:0
+    // }
+    // console.log(fullChainLength);
+    // console.log(chainCurve.getLength());
+
+         // move chain ring
     if(bearingMesh && bearingLinkMeshes[noOfLinksGlobal-1]){
-        ChainAnimGenerator.moveChain(rearTeethSet,activeRearGearGlobal,frontTeethSet,activeFrontGearGlobal,chainPiecesSet,angularSpeedRear,angularSpeedFront,sprocketCentreHeight,frontSprocketZShift, time);
+        //ChainAnimGenerator.moveChain(rearTeethSet,activeRearGearGlobal,frontTeethSet,activeFrontGearGlobal,chainPiecesSet,angularSpeedRear,angularSpeedFront,sprocketCentreHeight,frontSprocketZShift, time);
       for(let k = 0;k<noOfLinksGlobal;k++){
+        let pivotCurveSection = (time*chainLinkVelocity/chainCurve.getLength() + k*chordLengthApprox/chainCurve.getLength()); //ratio of position along curve to total length (0 - 1)
+        chainCurve.getPointAt(pivotCurveSection % 1, pivotPosition);
+        if(Math.abs(pivotPosition.y - sprocketCentreHeight)<0.009 && !hasFrontAngleOffset){
+            //use this to copy rotation once for front sprocket offset
+            if(pivotPosition.x>0){
+            frontAngleOffset = -1 * angularSpeedFront * time;
+            console.log("got it Front");
+            hasFrontAngleOffset = true;
+            }
+        }
+        if(Math.abs(pivotPosition.y - sprocketCentreHeight)<0.009 && !hasRearAngleOffset){
+            //use this to copy rotation once for front sprocket offset
+            if(pivotPosition.x<0){
+            rearAngleOffset = -1 * angularSpeedRear * time + Math.PI;
+            console.log("got it Rear");
+            hasRearAngleOffset = true;
+            }
+        }
+        chainCurve.getPointAt((pivotCurveSection + 1/noOfLinksGlobal) % 1, pivotTarget);
+        bearingLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+        bearingLinkMeshes[k].lookAt(pivotTarget.x, pivotTarget.y, pivotTarget.z);
         bearingLinkMeshes[k].visible = true;
         }
     }
       //move chain cylinder
       if(pivotMesh && pivotLinkMeshes[noOfLinksGlobal-1]){
         for(let k = 0;k<noOfLinksGlobal ;k++){
+            let pivotCurveSection = (time*chainLinkVelocity/chainCurve.getLength() + k*chordLengthApprox/chainCurve.getLength()); //ratio of position along curve to total length (0 - 1)
+            chainCurve.getPointAt(pivotCurveSection % 1, pivotPosition);
+            chainCurve.getPointAt((pivotCurveSection + 0.01) % 1, pivotTarget);
+            pivotLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+            pivotLinkMeshes[k].lookAt(pivotTarget.x, pivotTarget.y, pivotTarget.z);
         pivotLinkMeshes[k].visible = true;
  }
       }
       
       //move chain flat outer link
-      if(slateMesh && slateLinkMeshes[noOfLinksGlobal-1]){
+
+      if(slateMesh && slateLinkMeshes[noOfLinksGlobal-1]){      
+        ChainAnimGenerator.positionFlatLink(chainPiecesSet,sprocketCentreHeight);
         for(let k = 0;k<noOfLinksGlobal;k++){
-         slateLinkMeshes[k].visible = true;     
+            let pivotCurveSection = (time*chainLinkVelocity/chainCurve.getLength() + (0.5+2*(Math.floor(k/2)))*chordLengthApprox/chainCurve.getLength()); //ratio of position along curve to total length (0 - 1)
+            // chainCurve.getPointAt(pivotCurveSection % 1, pivotPosition);
+            // chainCurve.getPointAt((pivotCurveSection + 0.01) % 1, pivotTarget);
+            // slateLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+            // slateLinkMeshes[k].lookAt(pivotTarget.x, pivotTarget.y, pivotTarget.z);
+            // slateLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z + ((2*(k%2))-1)*GearGenerator.chainLinkThicknessOuter/2); 
+            slateLinkMeshes[k].visible = true;     
           }
       }
 
       //move chain flat inner link
       if(slateMeshIn && slateInLinkMeshes[noOfLinksGlobal-1]){
       for(let k = 0;k<noOfLinksGlobal;k++){
-slateInLinkMeshes[k].visible = true;
+        //   ChainAnimGenerator.positionFlatLink()
+        // let pivotCurveSection = (time*chainLinkVelocity/chainCurve.getLength() + (1.5+2*(Math.floor(k/2)))*chordLength/chainCurve.getLength()); //ratio of position along curve to total length (0 - 1)
+        // chainCurve.getPointAt(pivotCurveSection % 1, pivotPosition);
+        // chainCurve.getPointAt((pivotCurveSection + 0.01) % 1, pivotTarget);
+        //slateInLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z);
+        // slateInLinkMeshes[k].lookAt(pivotTarget.x, pivotTarget.y, pivotTarget.z);
+        //slateInLinkMeshes[k].position.set(pivotPosition.x, pivotPosition.y, pivotPosition.z+((2*(k%2))-1)*GearGenerator.chainLinkThickness/2);
+        slateInLinkMeshes[k].visible = true;
         }
     }
 
     //rotate sprockets
-    
+    // console.log(chordLengthOld-chordLength);
+    // console.log(Math.PI*2/rearTeethSetArray[activeRearGear]);
+
     for(let i = 0; i < rearToothedGears.length;i++){
 
-        rearToothedGears[i].rotation.y = angularSpeedRear*time;
+        rearToothedGears[i].rotation.y = angularSpeedRear*time + rearAngleOffset;//+(Math.PI/2 + aMax)+0.25*(chordLengthApprox-chordLengthTrue)*rearTeethSetArray[activeRearGear]/radiusL;//small offset to hide fake chord velocity.
         rearToothedGears[i].material = materialX2; rearToothedGears[i].material.needsUpdate = true;
 }
 
     for(let i = 0; i < frontToothedGears.length;i++){
 
-        frontToothedGears[i].rotation.y = angularSpeedFront*time;
+        frontToothedGears[i].rotation.y = angularSpeedFront*time + frontAngleOffset;//have to check for exact offset at runtime
         frontToothedGears[i].material = materialX2;
         frontToothedGears[i].material.needsUpdate = true;
+}
+
+{
+    //run only once stuff
 }
     rendererNew.toneMappingExposure = 2.75;
     rendererNew.render(scene, camera);
@@ -480,8 +671,8 @@ function resetChainPosition(rearTeethSetArray,frontTeethSetArray,activeRearGear,
 
     let chainParams = ChainAnimGenerator.points(rearTeethSet,activeRearGear,frontTeethSet,activeFrontGear);
 
-    adjustedSprocketCentreInterval = chainParams[5];
-    noOfLinksGlobal = chainParams[4];
+    adjustedSprocketCentreInterval = GearGenerator.sprocketCentreInterval;
+    //noOfLinksGlobal = chainParams[4];
     activeFrontGearGlobal = activeFrontGear;
     activeRearGearGlobal = activeRearGear;
     frontSprocketZShift = -0.5*((rearTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing+(frontTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing);
@@ -490,7 +681,7 @@ function resetChainPosition(rearTeethSetArray,frontTeethSetArray,activeRearGear,
     frontTeethSet = frontTeethSetArray;
     angularSpeedRear = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGear];
     angularSpeedFront = GearGenerator.fiftyTwoAngularVelocity/frontTeethSetArray[activeFrontGear];
-    
+    angularSpeedChord = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGearGlobal];
 
     //check if more links than previous, then add more
     // if(noOfLinksGlobal > bearingLinkMeshes.length){
@@ -503,13 +694,8 @@ function resetChainPosition(rearTeethSetArray,frontTeethSetArray,activeRearGear,
     //     }
     // }
 
-    bearingLinkMeshes = meshGenCallback(noOfLinksGlobal, bearingMesh);
-        pivotLinkMeshes = meshGenCallback(noOfLinksGlobal, pivotMesh);
-        slateLinkMeshes = meshGenCallback(noOfLinksGlobal, slateMesh);
-        slateInLinkMeshes = meshGenCallback(noOfLinksGlobal, slateMeshIn);
-        chainPiecesSet = [bearingLinkMeshes,pivotLinkMeshes,slateLinkMeshes,slateInLinkMeshes];
+    
 
-    chainPiecesSet = [bearingLinkMeshes,pivotLinkMeshes,slateLinkMeshes,slateInLinkMeshes];
 //     let chainParamsArray = ChainAnimGenerator.points(rearTeethSetArray[activeRearGear],frontTeethSetArray[activeFrontGear]);
 
 const carWidth = GearGenerator.carWidth;
@@ -518,8 +704,8 @@ const carLength = GearGenerator.carLength;
 
 const wheelRadius = GearGenerator.wheelRadius;
 
-let radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
-let radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
+radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
+radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
 let maxTeethCount = 0;
 
 for(let i = 0; i < rearTeethSetArray.length;i++){
@@ -532,18 +718,96 @@ for(let i = 0; i < frontTeethSetArray.length;i++){
 
 let sprocketCentreHeight = GearGenerator.radius(maxTeethCount)+wheelRadius*1.5;
 
-const sprocketCentreInterval= adjustedSprocketCentreInterval;  //d
+const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
-const arrayGenPoint = [];
+let arrayGenPoint = [];
+const arrayGenPointL = [];
+const arrayGenPointR = [];
+const bottomGenPoints = [];
+const topGenPoints = [];
 
 const aMax = Math.atan((radiusR-radiusL)/sprocketCentreInterval);
-const curveResolution = 15;//number of curve "handles"
+const curveResolution = 100;//15;//number of curve "handles"
 let interval = (Math.PI-2*aMax)/(curveResolution/2); //angle interval for arcs during spline generation
 let aRanger = aMax;
 let chainTheta = 0;
 let xPoint = 0;
 let yPoint = 0;
 let zPoint = 0;
+
+////chain points
+//move chains out a bit
+let chainExpandFactor = 1;
+//smaller sprocker half points
+for (let i = 0; i < (curveResolution/2); i++){
+    
+    chainTheta = Math.PI/2 + aRanger + interval*i;
+    xPoint = radiusL*Math.cos(chainTheta);
+    yPoint = radiusL*Math.sin(chainTheta) + sprocketCentreHeight;
+    zPoint = -carWidth/4 + 2*activeRearGear*GearGenerator.rearSprocketZSpacing;
+    
+    arrayGenPointL.push(new THREE.Vector3(xPoint,yPoint,zPoint));//append
+}
+
+
+
+chainTheta = 0;
+interval = (Math.PI+2*aMax)/(curveResolution/2); 
+aRanger = Math.PI/2 - aMax;
+
+let jtk =  - activeFrontGear;
+//larger sprocker half points
+for (let j = 0; j < (curveResolution/2); j++){
+    chainTheta = Math.PI + aRanger + interval*(j);
+    xPoint = sprocketCentreInterval + radiusR*Math.cos(chainTheta);
+    yPoint = radiusR*Math.sin(chainTheta) + sprocketCentreHeight;
+    zPoint = -carWidth/4 - (activeFrontGear)*2*GearGenerator.rearSprocketZSpacing - frontSprocketZShift;
+
+    arrayGenPointR.push(new THREE.Vector3(xPoint,yPoint,zPoint));//append
+}
+bottomGenPoints.push(arrayGenPointL[curveResolution/2 -1]);
+topGenPoints.push(arrayGenPointR[curveResolution/2 -1]);
+bottomGenPoints.push(arrayGenPointR[0]);
+topGenPoints.push(arrayGenPointL[0]);
+
+let bottomSlantHelper, topSlantHelper,chainCurveL,chainCurveR;
+
+chainCurveL = new THREE.CatmullRomCurve3(arrayGenPointL);
+chainCurveR = new THREE.CatmullRomCurve3(arrayGenPointR);
+bottomSlantHelper = new THREE.CatmullRomCurve3(bottomGenPoints);
+topSlantHelper = new THREE.CatmullRomCurve3(topGenPoints);
+
+let chainPoints2 = chainCurveL.getSpacedPoints(curveResolution); //add LHS curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = bottomSlantHelper.getSpacedPoints(curveResolution); //add bottom curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = chainCurveR.getSpacedPoints(curveResolution);//add RHS curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+arrayGenPoint.pop();
+
+chainPoints2 = topSlantHelper.getSpacedPoints(curveResolution);//add top curve
+for(let point in chainPoints2){
+    arrayGenPoint.push(chainPoints2[point]);
+}
+chainCurve = new THREE.CatmullRomCurve3(arrayGenPoint);
+
+chordLengthTrue = 2*Math.PI*radiusL/rearTeethSetArray[activeRearGear];//2xPIxR/teethcount
+noOfLinksGlobal = Math.round(0.5*chainCurve.getLength()/chordLengthTrue)*2;//force multiples of 2 (outer link inner link alternating)
+chordLengthApprox= chainCurve.getLength()/noOfLinksGlobal;
+angularSpeedChord = angularSpeedRear;
+angularSpeedRear *= chordLengthTrue/chordLengthApprox;
+angularSpeedFront *= chordLengthTrue/chordLengthApprox; 
+
 
 
 function resizeRendererToDisplaySize(rendererNew){
@@ -558,19 +822,51 @@ function resizeRendererToDisplaySize(rendererNew){
     return needResize
 }
 
+hasFrontAngleOffset = false;
+hasRearAngleOffset = false;
+
+bearingLinkMeshes = meshGenCallback(noOfLinksGlobal, bearingMesh);
+        pivotLinkMeshes = meshGenCallback(noOfLinksGlobal, pivotMesh);
+        slateLinkMeshes = meshGenCallback(noOfLinksGlobal, slateMesh);
+        slateInLinkMeshes = meshGenCallback(noOfLinksGlobal, slateMeshIn);
+        chainPiecesSet = [bearingLinkMeshes,pivotLinkMeshes,slateLinkMeshes,slateInLinkMeshes];
+
+    chainPiecesSet = [bearingLinkMeshes,pivotLinkMeshes,slateLinkMeshes,slateInLinkMeshes];
+
+console.log("noOfLinksGlobal " + noOfLinksGlobal);
+
+
+//visualize spaced points 
+
+// const sphereGeomtry = new THREE.SphereBufferGeometry( 0.1 );
+// const sphereMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
+// const spacedPoints = chainCurve.getPoints( 100 );
+
+// for ( let point of spacedPoints ) {
+
+// 	const helper = new THREE.Mesh( sphereGeomtry, sphereMaterial );
+// 	helper.position.copy( point );
+// 	scene.add( helper );
+
+// }
+
 }/////////////END OF RESET ChainPosition
 
 
 
 function resetSprocketModels(rearTeethSetArray,frontTeethSetArray,activeRearGear,activeFrontGear, meshGenCallback){
     let chainParams = ChainAnimGenerator.points(rearTeethSetArray,activeRearGear,frontTeethSetArray,activeFrontGear);
-    noOfLinksGlobal = chainParams[4];
+    //noOfLinksGlobal = chainParams[4];
     frontSprocketZShift = -0.5*((rearTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing+(frontTeethSetArray.length-1)*2*GearGenerator.rearSprocketZSpacing);
 
     rearTeethSet = rearTeethSetArray;
     frontTeethSet = frontTeethSetArray;
+    activeFrontGearGlobal = activeFrontGear;
+    activeRearGearGlobal = activeRearGear;
     angularSpeedRear = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGear];
     angularSpeedFront = GearGenerator.fiftyTwoAngularVelocity/frontTeethSetArray[activeFrontGear];
+    angularSpeedChord = GearGenerator.fiftyTwoAngularVelocity/rearTeethSetArray[activeRearGearGlobal];
 
 const carWidth = GearGenerator.carWidth;
 const carHeight = GearGenerator.carHeight;
@@ -578,8 +874,8 @@ const carLength = GearGenerator.carLength;
 
 const wheelRadius = GearGenerator.wheelRadius;
 
-let radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
-let radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
+radiusL = GearGenerator.radius(rearTeethSetArray[activeRearGear]);//RL
+radiusR = GearGenerator.radius(frontTeethSetArray[activeFrontGear]);//Rr
 let maxTeethCount = 0;
 
 for(let i = 0; i < rearTeethSetArray.length;i++){
@@ -592,7 +888,7 @@ for(let i = 0; i < frontTeethSetArray.length;i++){
 
 let sprocketCentreHeight = GearGenerator.radius(maxTeethCount)+wheelRadius*1.5;
 
-const sprocketCentreInterval= adjustedSprocketCentreInterval;  //d
+//const sprocketCentreInterval= GearGenerator.sprocketCentreInterval;  //d
 
 let extrudeSettings;
 let sprocketChildren = [];
@@ -618,6 +914,7 @@ let sprocketToothed;
 for(let j = 0;j < rearTeethSetArray.length; j++){ 
 sprocketToothed = BespokeGeo.sprocket(rearTeethSetArray[j],0,sprocketCentreHeight,-carWidth/4 + 2*j*GearGenerator.rearSprocketZSpacing);
 sprocketToothed.name = "sprocket";
+sprocketToothed.scale.set(1,GearGenerator.sprocketThicknessScale,1);
 rearToothedGears.push(sprocketToothed);
 scene.add(sprocketToothed);
 
@@ -628,12 +925,12 @@ extrudeSettings = GearGenerator.extrudeSettings;
 
 frontToothedGears = [];
 for(let j = 0; j<frontTeethSetArray.length;j++){
-    sprocketToothed = BespokeGeo.sprocket(frontTeethSetArray[(frontTeethSetArray.length-j-1)],adjustedSprocketCentreInterval,sprocketCentreHeight,-carWidth/4 + (-frontTeethSetArray.length+1 + j)*2*GearGenerator.rearSprocketZSpacing - frontSprocketZShift);
+    sprocketToothed = BespokeGeo.sprocket(frontTeethSetArray[(frontTeethSetArray.length-j-1)],GearGenerator.sprocketCentreInterval,sprocketCentreHeight,-carWidth/4 + (-frontTeethSetArray.length+1 + j)*2*GearGenerator.rearSprocketZSpacing - frontSprocketZShift);
     
     // console.log("test");//+(-carWidth/4 + (-frontTeethSetArray.length+1 + j)*2*GearGenerator.rearSprocketZSpacing - frontSprocketZShift));
     frontToothedGears.push(sprocketToothed);
     sprocketToothed.name = "sprocket";
-    
+    sprocketToothed.scale.set(1,GearGenerator.sprocketThicknessScale,1);
     scene.add(sprocketToothed);
     }//end of front sprocket 'for loop'
 
@@ -713,8 +1010,9 @@ function setActiveRearGear(activeRearGearGlobal,activeFrontGearGlobal){
 }
 
 // getTeethCount(["30","25","20","16","8"],["40","30", "20","10","8"]);
-init(["30","24","22","20","18","14","12"],["40","28", "15"],0,1,generateChainLinks);
-
+// init(["30","24","22","20","18","14","12"],["40","28", "15"],0,1,generateChainLinks);
+init(["30","25","20","16","8"],["40","30", "20","10","8"],2,2,generateChainLinks);
+console.log(noOfLinksGlobal);
 
 window.getTeethCount = getTeethCount;
 window.setActiveRearGear = setActiveRearGear;

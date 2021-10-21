@@ -745,19 +745,13 @@ let BespokeGeo = {
     },
 
     sprocket: function(teethCount,xOffset,yOffset,zOffset){
-        let radiusToTeethRatio = 520; //in metres //52 teeth is 200mm diameter
+        
         //centreToCentre spacing is 410mm (will show in gear generator, not here)
         //current z offset is problematic, so reduce till visually appealing
 //1 tooth is 1.2cm wide with a 5cm groove width
 
         //min ring segments = 4 x teethCount
-        //thicknes =2mm with 2mm gap for starters
-        let outerDiameter = 20;
-        let scaleFactor = 20/520;
-        scaleFactor /= (105/13);
-        let fiftyTwoPitchDiameter = radiusToTeethRatio*scaleFactor;
-        let innerDiameter =100;
-        let height = 4;
+        let sprocketThickness = GearGenerator.sprocketThickness;
         let ringSegments = teethCount*10;
         let sprocketSectionSegments = 5;//10;
         let ringVerts = [];
@@ -768,7 +762,7 @@ let BespokeGeo = {
         let ringSupportThickness = 3.5;
         let rGearFlats;
         
-        let rPitch = fiftyTwoPitchDiameter*teethCount/52;
+        let rPitch = GearGenerator.radius(teethCount);//0.5 for changing for rad to dia
       //   console.log(teethCount);
       //   console.log(rPitch);
         let radialSum = 2*rPitch*(Math.sin(thetaOne/4));
@@ -780,19 +774,11 @@ let BespokeGeo = {
 
         let rFlatTip = rTip + teethTipExtension;
    
-        let rTO=outerDiameter/2 - bevelThickness - hardNormalExtension;
-        let rTI=innerDiameter/2  + bevelThickness + hardNormalExtension;
-        let rSO=outerDiameter/2;
-        let rSI=innerDiameter/2;
-        const heightTop = height/2;
-        const sprocketInnerRingHeight = scaleFactor * 10;
-        height=height/2  - bevelThickness - hardNormalExtension;
+        const sprocketInnerRingHeight = sprocketThickness/2;
 
         
         let theta = 2*Math.PI/ringSegments;
-        let theta2 = 2*Math.PI/teethCount;
         let phi = theta/2;
-        let phi2 = theta/5;
         let thetaBendGroove = GearGenerator.extensionGrooveAngle*Math.PI/180;
         let thetaBendTip = GearGenerator.extensionTipAngle*Math.PI/180;
 
