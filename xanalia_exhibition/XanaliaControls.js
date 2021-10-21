@@ -12,6 +12,9 @@ const _lockEvent = { type: 'lock' };
 const _unlockEvent = { type: 'unlock' };
 
 const _PI_2 = Math.PI / 2;
+let isNavigating = false;
+let isMouseDown = false;
+
 
 class PointerLockControls extends EventDispatcher {
 
@@ -39,6 +42,7 @@ class PointerLockControls extends EventDispatcher {
 		function onMouseMove( event ) {
 
 			if ( scope.isLocked === false ) return;
+			if (!isMouseDown) return;
 
 			const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 			const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -58,10 +62,12 @@ class PointerLockControls extends EventDispatcher {
 
 		function onPointerlockChange() {
 
-			if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
+			//if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
+			if ( isNavigating ) {
 
 				scope.dispatchEvent( _lockEvent );
-
+				//scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove );
+			//scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange );
 				scope.isLocked = true;
 
 			} else {
@@ -74,6 +80,33 @@ class PointerLockControls extends EventDispatcher {
 
 		}
 
+		function onMouseDown() {
+				isMouseDown = true;
+				// console.log(isMouseDown);
+			//if ( scope.domElement.ownerDocument.pointerLockElement === scope.domElement ) {
+			if ( isNavigating ) {
+
+
+				scope.dispatchEvent( _lockEvent );
+				//scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove );
+			//scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange );
+				scope.isLocked = true;
+
+			} else {
+
+				scope.dispatchEvent( _unlockEvent );
+
+				scope.isLocked = false;
+
+			}
+
+		}
+
+		function onMouseUp(){
+			isMouseDown = false;
+			// console.log(isMouseDown);
+		}
+
 		function onPointerlockError() {
 
 			console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
@@ -82,7 +115,10 @@ class PointerLockControls extends EventDispatcher {
 
 		this.connect = function () {
 
+			console.log("connected");
 			scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove );
+			scope.domElement.ownerDocument.addEventListener( 'mousedown', onMouseDown );
+			scope.domElement.ownerDocument.addEventListener( 'mouseup', onMouseUp );
 			scope.domElement.ownerDocument.addEventListener( 'pointerlockchange', onPointerlockChange );
 			scope.domElement.ownerDocument.addEventListener( 'pointerlockerror', onPointerlockError );
 
@@ -143,12 +179,15 @@ class PointerLockControls extends EventDispatcher {
 
 		this.lock = function () {
 
-			this.domElement.requestPointerLock();
+			//this.domElement.requestPointerLock();
+			isNavigating = true;
+			// console.log("isLocked");
 
 		};
 
 		this.unlock = function () {
 
+			isNavigating = false;
 			scope.domElement.ownerDocument.exitPointerLock();
 
 		};
