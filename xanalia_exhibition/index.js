@@ -61,7 +61,7 @@ function init() {
 	scene.add( light );
 
 	let radius   = 3;
-	let segments = 24;
+	let segments = 64;
 	let circleMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff} );
 	let circleGeometry = new THREE.CircleGeometry( radius, segments );
 
