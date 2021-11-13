@@ -21,11 +21,20 @@
 
 /*---------------------PENDING----------------------
 //centre the animation based on target window size 
+change rotation to clockwise (just multiply angle rotation by -1)
 
 --------------------------------------------------------------
 */
 
 /*---------------TO DO------------------------
+-change to real dimensions (metres)
+-change to clockwise 
+    -curve moves from 0 to 1 so negatives won't work. you have to change the drawing 
+    direction,and now start from the top slant
+    -think of the frontwheel as the driving gear, and it will now have the predictable
+    offsets
+-check centering of gears (move all z position calc to one place)
+
 make sprockets thinner - 
 take out gap, or make very small
 -brushed metal normal texture for flat sides, just fix in photoshop

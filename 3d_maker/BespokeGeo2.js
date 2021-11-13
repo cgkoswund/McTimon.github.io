@@ -1665,7 +1665,7 @@ for(let i = 0; i < teethCount; i++){
             // ring.position.y = 2.1;
             // ring.position.z = zOffset;
 
-            ring.position.set(xOffset,yOffset,zOffset);
+            ring.position.set(0,yOffset,zOffset);
 
 
             return ring;
