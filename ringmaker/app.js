@@ -5,7 +5,23 @@ import {DefaultConstants} from "./DefaultConstants.js"
 
 			let camera, scene, renderer, controls;
 			let handlesArray = [];
+			let handleZOffsetsArray = [];
 			let mesh;
+
+			let selectedHandle,clickedHandle;
+			let mouseIsDown = false;
+			let isDragging = false;
+			let isOnPoint = false;
+			let startedOnPoint = false;
+
+			let guideCurve, curveObject;
+			let curvePoints = [];
+			let ringNewPoints
+			let curveSmallOffset = DefaultConstants.curveSmallOffset;
+
+			let oldGuidePlane, newGuidePlane, oldRing, newRing;
+			let newCurveHandlePoint;
+			let isTransforming = false;
 
 
 
@@ -34,41 +50,92 @@ import {DefaultConstants} from "./DefaultConstants.js"
 				let ringRadius = DefaultConstants.ringRadius;
 				let controlSphereOffsetZ = DefaultConstants.ringWidth-2
 				let controlSphereOffsetR = DefaultConstants.ringThickness-2
-				scene.add(RingBufferGeo.make());
-
+				
 				{//setup control spheres
-					let sphereGeo = new THREE.SphereGeometry(ringRadius/40);
-					let sphereMat = new THREE.MeshStandardMaterial({color:0x3766ae});
-					let sphereMatSelected = new THREE.MeshStandardMaterial({color:0x3766ae});
-					for(let i = 0; i<8;i++){
-						let sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
-						let theta = Math.PI*2/8;
-						sphereMesh.name = "sphereHandle"//+ //(i*4+1)
-						scene.add(sphereMesh)
-						handlesArray.push(sphereMesh)
-						sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
+					// curvePoints = [
+						// 	new THREE.Vector3( -10, 0, 10 ),
+						// 	new THREE.Vector3( -5, 5, 5 ),
+						// 	new THREE.Vector3( 0, 0, 0 ),
+						// 	new THREE.Vector3( 5, -5, 5 ),
+						// 	new THREE.Vector3( 10, 0, 10 )
+						// ];
 						
-						sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
-						sphereMesh.name = "sphereHandle"
-						scene.add(sphereMesh)
-						handlesArray.push(sphereMesh)
-						sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),-controlSphereOffsetZ);
+						let sphereGeo = new THREE.SphereGeometry(ringRadius/40);
+						let sphereMat = new THREE.MeshStandardMaterial({color:0x3766ae});
 						
-						sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
-						sphereMesh.name = "sphereHandle"
-						scene.add(sphereMesh)
-						handlesArray.push(sphereMesh)
-						sphereMesh.position.set((ringRadius-controlSphereOffsetR)*Math.cos(theta*i),(ringRadius-controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
+						let sphereMatSelected = new THREE.MeshStandardMaterial({color:0x3766ae});
+						for(let i = 0; i<8;i++){
+
+							let offset = 0;
+							let identifier = 0;
+	
+							function updateIDs(){
+	
+								identifier = i*4+offset;
+								if(identifier<=9){identifier= "0"+identifier;}
+								sphereMesh.name = "sphereHandle"+ identifier
+								offset++;
+								console.log(sphereMesh);
+							}	
+
+							let sphereMesh;
+							
+							function makeSphere(){
+								sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
+								scene.add(sphereMesh)
+								handlesArray.push(sphereMesh)
+								if(i%4 == 0){
+									sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
+									curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ+2+curveSmallOffset))
+
+								}
+							}
+							let theta = Math.PI*2/8;
+
+							makeSphere();
+							updateIDs();
+														
+							sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
+							scene.add(sphereMesh)
+							handlesArray.push(sphereMesh)
+							sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),-controlSphereOffsetZ);
+							updateIDs();
+							
+							
+							sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
+							scene.add(sphereMesh)
+							handlesArray.push(sphereMesh)
+							sphereMesh.position.set((ringRadius-controlSphereOffsetR)*Math.cos(theta*i),(ringRadius-controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
+							updateIDs();
+								
+							
+							sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
+							scene.add(sphereMesh)
+							handlesArray.push(sphereMesh)
+							sphereMesh.position.set((ringRadius-controlSphereOffsetR)*Math.cos(theta*i),(ringRadius-controlSphereOffsetR)*Math.sin(theta*i),-controlSphereOffsetZ);
+							updateIDs();
+						}
 						
-						sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
-						sphereMesh.name = "sphereHandle"
-						scene.add(sphereMesh)
-						handlesArray.push(sphereMesh)
-						sphereMesh.position.set((ringRadius-controlSphereOffsetR)*Math.cos(theta*i),(ringRadius-controlSphereOffsetR)*Math.sin(theta*i),-controlSphereOffsetZ);
+						//close the loop
+						// curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*1,(ringRadius+controlSphereOffsetR)*Math.sin(theta*0),controlSphereOffsetZ+2+curveSmallOffset))
+						// curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*1,0,controlSphereOffsetZ+2+curveSmallOffset))
 					}
-				}
-
-
+					
+					{//setup guide curve
+						guideCurve = new THREE.CatmullRomCurve3( curvePoints );
+						guideCurve.closed = true;
+						
+						ringNewPoints = guideCurve.getPoints( DefaultConstants.ringSegments );
+						const geometry = new THREE.BufferGeometry().setFromPoints( ringNewPoints );
+						
+						const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+						
+						// Create the final object to add to the scene
+						curveObject = new THREE.Line( geometry, material );
+						scene.add(curveObject);
+					}
+					
+					updateRing(ringNewPoints);
 				const geometry2 = new THREE.TorusGeometry( 100, 15, 16, 100 );
 				const material2 = new THREE.MeshBasicMaterial( { color: 0x555555, roughness:0.2 } );
 				const baseCircle = new THREE.Mesh( geometry2, material2 );
@@ -152,23 +219,90 @@ import {DefaultConstants} from "./DefaultConstants.js"
 	for(let i = 0; i<handlesArray.length;i++){
 		handlesArray[i].material.color = sphereMat.color;
 	}
+	if(selectedHandle)selectedHandle.material = new THREE.MeshBasicMaterial( { color: 0xff66ae } );
 	raycaster.setFromCamera( pointer, camera );
 	// calculate objects intersecting the picking ray
 	const intersects = raycaster.intersectObjects( scene.children );
 	// if(intersects.length>0){console.log(intersects)};
+	
+	clickedHandle = null;
 	for ( let i = 0; i < intersects.length; i ++ ) {
 
-		if(intersects[i].object.name=="sphereHandle"){
-		intersects[ i ].object.material = new THREE.MeshBasicMaterial( { color: 0xff66ae } )};
-		// intersects[ i ].object.material.color.set( 0xff0000 );
+		if(intersects[i].object.name=="movePlane"){
+			newCurveHandlePoint=intersects[i].point;
+		}
 
+		if(intersects[i].object.name.includes("sphereHandle")){
+			clickedHandle = intersects[i].object;
+		intersects[ i ].object.material = new THREE.MeshBasicMaterial( { color: 0xff66ae } )
+
+		break;
 	}
+	
+	if(isTransforming&&selectedHandle){selectedHandle.position.set(selectedHandle.position.x,selectedHandle.position.y,newCurveHandlePoint.z-curveSmallOffset-2)}
+}
 
 		requestAnimationFrame( animate );
 		renderer.render( scene, camera );
 
 	}
 
+function addGuidePlane(position){
+	oldGuidePlane = newGuidePlane;
+
+	const geometry = new THREE.PlaneGeometry( 600, 300 );
+	const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide, opacity:0, transparent:true} );
+	console.log(material);
+	const plane = new THREE.Mesh( geometry, material );
+	plane.name = "movePlane"
+	plane.rotateY(Math.PI/2)
+	plane.position.set(position.x,position.y,0*position.z)
+	newGuidePlane = plane
+	scene.add( plane );
+
+	if(oldGuidePlane){
+		scene.remove(oldGuidePlane);
+		oldGuidePlane.geometry.dispose();
+		oldGuidePlane.material.dispose();
+		oldGuidePlane= undefined;
+	}
+	// console.log(position)
+}
+
+function updateGuideCurve(curvePoints){
+	//setup guide curve
+	let cp2 = [];
+	for (let i = 0; i < handlesArray.length/4; i++){
+		cp2.push(handlesArray[4*i].position)
+	}
+	guideCurve = new THREE.CatmullRomCurve3( cp2 );
+	guideCurve.closed = true;
+
+	ringNewPoints = guideCurve.getPoints( DefaultConstants.ringSegments );
+	const geometry = new THREE.BufferGeometry().setFromPoints( ringNewPoints );
+
+	const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+
+	// Create the final object to add to the scene
+	scene.remove(curveObject);
+	curveObject.material.dispose();
+	curveObject.geometry.dispose();
+	curveObject = new THREE.Line( geometry, material );
+	scene.add(curveObject);
+						
+}
+
+function updateRing(inPoints){
+	oldRing = newRing;
+	newRing = RingBufferGeo.make(inPoints)
+	scene.add(newRing);
+	if(oldRing){
+		scene.remove(oldRing);
+		oldRing.geometry.dispose();
+		oldRing.material.dispose();
+		oldRing = null;
+	}
+}
 
 function onPointerMove( event ) {
 
@@ -177,9 +311,62 @@ function onPointerMove( event ) {
 
 	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	if(mouseIsDown){
+		isDragging=true;
+		if(selectedHandle&&newCurveHandlePoint&&startedOnPoint){
+			isTransforming = true;
+			updateGuideCurve(8);
+			// controls.enabled = false;
+		}else{
+			isTransforming = false;
+			controls.enabled =true;
+		}
+	}
 
+	if(isOnPoint){
+		controls.enabled = false;
+	}else {
+		//controls.enabled = true;
+	}
+	
+
+}
+
+
+
+
+function onPointerDown( event ){
+	// console.log("mousedown");
+	mouseIsDown = true;
+	if(clickedHandle){
+		isOnPoint = true;
+		startedOnPoint = true;
+		controls.enabled=false;
+		selectedHandle=clickedHandle;
+		addGuidePlane(selectedHandle.position);
+	}
+	
+
+}
+
+function onPointerUp( event ){
+	// console.log("mouseup");
+	if(!isDragging){
+		// console.log(clickedHandle);
+		selectedHandle = clickedHandle;
+		// clickedHandle.material = new THREE.MeshBasicMaterial( { color: 0xff66ae } );
+	}
+	mouseIsDown=false;
+	isDragging = false;
+	isOnPoint = false;
+	isTransforming = false;
+	startedOnPoint = false;
+	controls.enabled = true;
 }
 			init();
 			animate();
 
 window.addEventListener( 'pointermove', onPointerMove );
+window.addEventListener( 'pointerdown', onPointerDown );
+window.addEventListener( 'pointerup', onPointerUp);
+
