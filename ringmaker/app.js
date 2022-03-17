@@ -3,6 +3,7 @@ import { OrbitControls } from '../ThreeJSr138/examples/jsm/controls/OrbitControl
 import {RingBufferGeo} from "./RingBufferGeo.js"
 import {DefaultConstants} from "./DefaultConstants.js"
 import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.js';
+import { EXRLoader } from "../ThreeJSr138/examples/jsm/loaders/EXRLoader.js";
 
 			let camera, scene, renderer, controls;
 			let handlesArray = [];
@@ -14,6 +15,10 @@ import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.j
 			let isDragging = false;
 			let isOnPoint = false;
 			let startedOnPoint = false;
+
+			let pngCubeRenderTarget, exrCubeRenderTarget;
+			let pngBackground, exrBackground;
+let newEnvMap;
 
 			let guideCurve, curveObject;
 			let curvePoints = [];
@@ -27,6 +32,11 @@ import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.j
 			let selectedHandleLocZ, selectedHandleID;
 			let exportedRing;
 
+			let shinyMaterial = new THREE.MeshStandardMaterial(
+					{color:0xccdd55,metalness:0.1,roughness:0.1}
+			);
+			let toggleOn = false;
+
 
 			function init() {
 
@@ -35,7 +45,7 @@ import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.j
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xffffff );
-
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
 
 				// const texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
 
@@ -137,6 +147,42 @@ import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.j
 						scene.add(curveObject);
 					}
 
+					{//add hdri
+						
+						new EXRLoader()
+						.load( 'textures/piz_compressed.exr', function ( texture ) {
+							
+							exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+							exrBackground = exrCubeRenderTarget.texture;
+							
+							texture.dispose();
+							newEnvMap = exrCubeRenderTarget ? exrCubeRenderTarget.texture : null;
+							
+						} );
+						
+						// new THREE.TextureLoader().load( 'textures/equirectangular.png', function ( texture ) {
+							
+							// 	texture.encoding = THREE.sRGBEncoding;
+							
+							// 	pngCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+							
+							// 	pngBackground = pngCubeRenderTarget.texture;
+							
+							// 	texture.dispose();
+							
+							// } );
+							
+							const pmremGenerator = new THREE.PMREMGenerator( renderer );
+							pmremGenerator.compileEquirectangularShader();
+							
+							THREE.DefaultLoadingManager.onLoad = function ( ) {
+	
+								pmremGenerator.dispose();
+			
+							};
+			
+					}
+
 					// console.log(handlesArray);
 					// handlesArray.sort((a,b)=>b.position.x - a.position.x);
 					// console.log(handlesArray);
@@ -188,9 +234,11 @@ import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.j
 				// mesh = new THREE.Mesh( geometry, material );
 				// scene.add( mesh );
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth*1, window.innerHeight*1 );
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.outputEncoding = THREE.sRGBEncoding;
 				document.body.appendChild( renderer.domElement );
 
 				controls = new OrbitControls( camera, renderer.domElement );
@@ -317,6 +365,8 @@ function updateGuideCurve(curvePoints){
 function updateRing(inPoints){
 	oldRing = newRing;
 	newRing = RingBufferGeo.make(inPoints)
+	newRing.material.envMap = newEnvMap;
+	newRing.material.needsUpdate = true;
 	// exportedRing=oldRing;
 	scene.add(newRing);
 	if(oldRing){
@@ -326,7 +376,28 @@ function updateRing(inPoints){
 		oldRing = null;
 	}
 }
+function toggleHandlesVisibility(state){
+	for(let i = 0; i < handlesArray.length; i++){
+		handlesArray[i].visible = state;
 
+	}
+}
+function toggleShade(){
+
+	toggleHandlesVisibility(toggleOn);
+	toggleOn = !toggleOn;
+	if(toggleOn){
+		newRing.material = new THREE.MeshStandardMaterial( { color: 0xffcc55, roughness:0, metalness:1 } );
+		newRing.material.envMap = newEnvMap;
+		renderer.toneMappingExposure = 2;
+		selectedHandle = null;
+		isTransforming = false;
+
+	}else{
+		newRing.material = new THREE.MeshStandardMaterial( { color: 0xfefefe, roughness:0.6 } );
+		renderer.toneMappingExposure = 1;
+	}
+}
 
 function exportToObj() {
 
@@ -360,7 +431,6 @@ function exportToObj() {
 	saveString( result, 'object.obj' );
 
 }
-
 
 const link = document.createElement( 'a' );
 link.style.display = 'none';
@@ -409,9 +479,6 @@ function onPointerMove( event ) {
 
 }
 
-
-
-
 function onPointerDown( event ){
 	// console.log("mousedown");
 	mouseIsDown = true;
@@ -447,6 +514,11 @@ function onKeyPress(e){
 		//export obj
 		exportToObj();
 	}
+	if(e.charCode==115){
+		toggleShade();
+	}
+
+
 }
 			init();
 			animate();
