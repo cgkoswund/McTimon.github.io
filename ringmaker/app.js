@@ -2,6 +2,7 @@ import * as THREE from "../ThreeJSr138/build/three.module.js"
 import { OrbitControls } from '../ThreeJSr138/examples/jsm/controls/OrbitControls.js';
 import {RingBufferGeo} from "./RingBufferGeo.js"
 import {DefaultConstants} from "./DefaultConstants.js"
+import { OBJExporter } from '../ThreeJSr138/examples/jsm/exporters/OBJExporter.js';
 
 			let camera, scene, renderer, controls;
 			let handlesArray = [];
@@ -24,7 +25,7 @@ import {DefaultConstants} from "./DefaultConstants.js"
 			let isTransforming = false;
 
 			let selectedHandleLocZ, selectedHandleID;
-
+			let exportedRing;
 
 
 			function init() {
@@ -305,8 +306,8 @@ function updateGuideCurve(curvePoints){
 	curveObject.material.dispose();
 	curveObject.geometry.dispose();
 	curveObject = new THREE.Line( geometry, material );
-	// curveObject.material.transparent = true;
-	// curveObject.material.opacity = 0;
+	curveObject.material.transparent = true;
+	curveObject.material.opacity = 0;
 	scene.add(curveObject);
 
 	updateRing(ringNewPoints)
@@ -316,6 +317,7 @@ function updateGuideCurve(curvePoints){
 function updateRing(inPoints){
 	oldRing = newRing;
 	newRing = RingBufferGeo.make(inPoints)
+	// exportedRing=oldRing;
 	scene.add(newRing);
 	if(oldRing){
 		scene.remove(oldRing);
@@ -323,6 +325,59 @@ function updateRing(inPoints){
 		oldRing.material.dispose();
 		oldRing = null;
 	}
+}
+
+
+function exportToObj() {
+
+	//const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+	//const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+
+	//exportedRing = new THREE.Mesh(geometry, material );
+
+	const geometry = new THREE.BufferGeometry();
+	const vertices = new Float32Array( [
+		-1.0, -1.0,  1.0,
+		 1.0, -1.0,  1.0,
+		 1.0,  1.0,  1.0,
+	
+		 1.0,  1.0,  1.0,
+		-1.0,  1.0,  1.0,
+		-1.0, -1.0,  1.0
+	] );
+	
+	// itemSize = 3 because there are 3 values (components) per vertex
+	geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+	const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+	exportedRing = new THREE.Mesh( geometry, material );
+
+	// exportedRing=RingBufferGeo.make(curvePoints);
+	exportedRing.geometry.copy(newRing.geometry);// = 
+	exportedRing.geometry.scale(0.4,0.4,0.4);
+	console.log(exportedRing.scale)
+	const exporter = new OBJExporter();
+	const result = exporter.parse( exportedRing );
+	saveString( result, 'object.obj' );
+
+}
+
+
+const link = document.createElement( 'a' );
+link.style.display = 'none';
+document.body.appendChild( link );
+
+function save( blob, filename ) {
+
+	link.href = URL.createObjectURL( blob );
+	link.download = filename;
+	link.click();
+
+}
+
+function saveString( text, filename ) {
+
+	save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+
 }
 
 function onPointerMove( event ) {
@@ -385,10 +440,19 @@ function onPointerUp( event ){
 	startedOnPoint = false;
 	controls.enabled = true;
 }
+
+function onKeyPress(e){
+	// console.log(e)
+	if(e.charCode ==32){
+		//export obj
+		exportToObj();
+	}
+}
 			init();
 			animate();
 
 window.addEventListener( 'pointermove', onPointerMove );
 window.addEventListener( 'pointerdown', onPointerDown );
 window.addEventListener( 'pointerup', onPointerUp);
+window.addEventListener( 'keypress', onKeyPress);
 
