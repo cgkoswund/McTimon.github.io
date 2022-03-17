@@ -9,6 +9,7 @@ let RingBufferGeo = {
     make: function(inPoints){
 
         let sm = DefaultConstants.curveSmallOffset;
+        let spm = DefaultConstants.sphereSmallOffset;
         let rMajor =  DefaultConstants.ringRadius;
         let sideLength = rMajor;
         sideLength *= .5;
@@ -45,24 +46,25 @@ let RingBufferGeo = {
         }
 
         for(let j = 0;j<noOfRingSegments;j++){
-            let lWideNew = Math.abs(inPoints[j].z) -sm - rFillet - lSupport;
+            let lWideNewA = Math.abs(inPoints[j].z) -sm +spm - rFillet - lSupport;
+            let lWideNewC = Math.abs(inPoints[(j+1)%inPoints.length].z) -sm+spm - rFillet - lSupport;
         {//maybe just change lWide to inpoints
         //Front
         vertAOps=[(-lThick+rMajor)*Math.cos(j*thetaMajor), 
                     (-lThick+rMajor)*Math.sin(j*thetaMajor),  
-                    lWideNew + lSupport + rFillet]
+                    lWideNewA + lSupport + rFillet]
 
         vertBOps=[ (lThick+rMajor)*Math.cos(j*thetaMajor), 
                     (lThick+rMajor)*Math.sin(j*thetaMajor),  
-                    lWideNew + lSupport + rFillet]
+                    lWideNewA + lSupport + rFillet]
 
         vertCOps=[ (lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
                     (lThick+rMajor)*Math.sin((j+1)*thetaMajor),  
-                    lWideNew   + lSupport + rFillet]
+                    lWideNewC   + lSupport + rFillet]
 
         vertDOps=[(-lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
                     (-lThick+rMajor)*Math.sin((j+1)*thetaMajor),  
-                    lWideNew   + lSupport + rFillet]
+                    lWideNewC   + lSupport + rFillet]
         normalAOps=[ 0,  0,  1]
         normalBOps=[ 0,  0,  1]
         normalCOps=[ 0,  0,  1]
@@ -77,19 +79,19 @@ let RingBufferGeo = {
         //Right (outer surface)
         vertAOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor),  
-                    lWideNew  ]
+                     lWideNewA ]
 
         vertBOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor), 
-                     -lWideNew  ]
+                     - lWideNewA ]
 
         vertCOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    -lWideNew  ]
+                    -  lWideNewC]
 
         vertDOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor),
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-                     lWideNew  ]
+                       lWideNewC]
 
         normalAOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
         normalBOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
@@ -104,19 +106,19 @@ let RingBufferGeo = {
         //Back
         vertAOps=[ (lThick+rMajor)*Math.cos(j*thetaMajor), 
             (lThick+rMajor)*Math.sin(j*thetaMajor),
-             -(lWideNew   + lSupport + rFillet)]
+             -( lWideNewA  + lSupport + rFillet)]
              
         vertBOps=[(-lThick+rMajor)*Math.cos(j*thetaMajor), 
              (-lThick+rMajor)*Math.sin(j*thetaMajor),
-             -(lWideNew   + lSupport + rFillet)]
+             -( lWideNewA  + lSupport + rFillet)]
              
         vertCOps=[(-lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
             (-lThick+rMajor)*Math.sin((j+1)*thetaMajor),
-             -(lWideNew   + lSupport + rFillet)]
+             -( lWideNewC  + lSupport + rFillet)]
              
         vertDOps=[ (lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick+rMajor)*Math.sin((j+1)*thetaMajor),
-             -(lWideNew   + lSupport + rFillet)]
+             -( lWideNewC  + lSupport + rFillet)]
              
         normalAOps=[ 0,  0,  -1]
         normalBOps=[ 0,  0,  -1]
@@ -131,19 +133,19 @@ let RingBufferGeo = {
         //Left (inner surface)
         vertAOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
             (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor), 
-             -lWideNew  ]
+             - lWideNewA ]
 
         vertBOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
             (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor),  
-            lWideNew  ]
+             lWideNewA ]
 
         vertCOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
             (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-            lWideNew  ]
+              lWideNewC]
 
         vertDOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
             (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-            -lWideNew  ]
+            -  lWideNewC]
 
         normalAOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
         normalBOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
@@ -161,19 +163,19 @@ let RingBufferGeo = {
 
         vertAOps=[(-lThick - lSupport+rMajor)*Math.cos(j*thetaMajor), 
             (-lThick - lSupport+rMajor)*Math.sin(j*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewA ) + lSupport + rFillet]
 
         vertBOps=[ (-lThick+rMajor)*Math.cos(j*thetaMajor), 
             (-lThick +rMajor)*Math.sin(j*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewA ) + lSupport + rFillet]
 
         vertCOps=[ (-lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
             (-lThick+rMajor)*Math.sin((j+1)*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewC ) + lSupport + rFillet]
 
         vertDOps=[(-lThick - lSupport+rMajor)*Math.cos((j+1)*thetaMajor), 
             (-lThick - lSupport+rMajor)*Math.sin((j+1)*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewC ) + lSupport + rFillet]
 
         normalAOps=[ 0,  0,  1]
         normalBOps=[ 0,  0,  1]
@@ -189,19 +191,19 @@ let RingBufferGeo = {
 
         vertAOps=[(lThick +rMajor)*Math.cos(j*thetaMajor), 
             (lThick +rMajor)*Math.sin(j*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewA ) + lSupport + rFillet]
 
         vertBOps=[ (lThick+ lSupport+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport+rMajor)*Math.sin(j*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewA ) + lSupport + rFillet]
 
         vertCOps=[ (lThick+ lSupport+rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick+ lSupport+rMajor)*Math.sin((j+1)*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewC ) + lSupport + rFillet]
 
         vertDOps=[(lThick +rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick +rMajor)*Math.sin((j+1)*thetaMajor),  
-            (lWideNew  ) + lSupport + rFillet]
+            ( lWideNewC ) + lSupport + rFillet]
 
         normalAOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
         normalBOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
@@ -217,19 +219,19 @@ let RingBufferGeo = {
 
         vertAOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor),  
-                    -(lWideNew  )]
+                    -( lWideNewA )]
 
         vertBOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor), 
-                     -(lWideNew  )-lSupport]
+                     -( lWideNewA )-lSupport]
 
         vertCOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    -(lWideNew  )-lSupport]
+                    -( lWideNewC )-lSupport]
 
         vertDOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor),
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-                     -(lWideNew  )]
+                     -( lWideNewC )]
         
         normalAOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
         normalBOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
@@ -245,19 +247,19 @@ let RingBufferGeo = {
 
         vertAOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor),  
-                    (lWideNew  )+lSupport]
+                    ( lWideNewA )+lSupport]
 
         vertBOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos(j*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin(j*thetaMajor), 
-                     (lWideNew  )]
+                     ( lWideNewA )]
 
         vertCOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    (lWideNew  )]
+                    ( lWideNewC )]
 
         vertDOps=[ (lThick + lSupport + rFillet+rMajor)*Math.cos((j+1)*thetaMajor),
             (lThick + lSupport + rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-                     (lWideNew  )+lSupport]
+                     ( lWideNewC )+lSupport]
 
         normalAOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
         normalBOps=[ Math.cos(j*thetaMajor),  Math.sin(j*thetaMajor),  0]
@@ -274,19 +276,19 @@ let RingBufferGeo = {
 
             vertAOps=[ (-lThick+rMajor)*Math.cos(j*thetaMajor), 
                 (-lThick+rMajor)*Math.sin(j*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewA ) + lSupport + rFillet)]
                  
             vertBOps=[(-lThick-lSupport+rMajor)*Math.cos(j*thetaMajor), 
                  (-lThick-lSupport+rMajor)*Math.sin(j*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewA ) + lSupport + rFillet)]
                  
             vertCOps=[(-lThick-lSupport+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick-lSupport+rMajor)*Math.sin((j+1)*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewC ) + lSupport + rFillet)]
                  
             vertDOps=[ (-lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick+rMajor)*Math.sin((j+1)*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewC ) + lSupport + rFillet)]
 
             normalAOps=[ 0,  0,  -1]
             normalBOps=[ 0,  0,  -1]
@@ -302,19 +304,19 @@ let RingBufferGeo = {
             
             vertAOps=[ (lThick+lSupport+rMajor)*Math.cos(j*thetaMajor), 
                 (lThick+lSupport+rMajor)*Math.sin(j*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewA ) + lSupport + rFillet)]
                  
             vertBOps=[(lThick+rMajor)*Math.cos(j*thetaMajor), 
                  (lThick+rMajor)*Math.sin(j*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewA ) + lSupport + rFillet)]
                  
             vertCOps=[(lThick+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (lThick+rMajor)*Math.sin((j+1)*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewC ) + lSupport + rFillet)]
                  
             vertDOps=[ (lThick+lSupport+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (lThick+lSupport+rMajor)*Math.sin((j+1)*thetaMajor),
-                 -((lWideNew  ) + lSupport + rFillet)]
+                 -(( lWideNewC ) + lSupport + rFillet)]
 
             normalAOps=[ 0,  0,  -1]
             normalBOps=[ 0,  0,  -1]
@@ -330,19 +332,19 @@ let RingBufferGeo = {
 
             vertAOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor), 
-                 -(lWideNew  )-lSupport]
+                 -( lWideNewA )-lSupport]
     
             vertBOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor),  
-                -(lWideNew  )]
+                -( lWideNewA )]
     
             vertCOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-                -(lWideNew  )]
+                -( lWideNewC )]
     
             vertDOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-                -(lWideNew  )-lSupport]
+                -( lWideNewC )-lSupport]
 
             normalAOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
             normalBOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
@@ -358,19 +360,19 @@ let RingBufferGeo = {
 
             vertAOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor), 
-                 (lWideNew  )]
+                 ( lWideNewA )]
     
             vertBOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos(j*thetaMajor),
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin(j*thetaMajor),  
-                (lWideNew  )+lSupport]
+                ( lWideNewA )+lSupport]
     
             vertCOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor),  
-                (lWideNew  )+lSupport]
+                ( lWideNewC )+lSupport]
     
             vertDOps=[(-lThick - lSupport - rFillet+rMajor)*Math.cos((j+1)*thetaMajor), 
                 (-lThick - lSupport - rFillet+rMajor)*Math.sin((j+1)*thetaMajor), 
-                (lWideNew  )]
+                ( lWideNewC )]
 
             normalAOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
             normalBOps=[ -Math.cos(j*thetaMajor),  -Math.sin(j*thetaMajor),  0]
@@ -393,19 +395,19 @@ let RingBufferGeo = {
                     // let theta = filletTurnAngle;
                     vertAOps=[((lThick + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.cos(j*thetaMajor), 
                         ((lThick + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.sin(j*thetaMajor),  
-                        (lWideNew  ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle))]
+                        ( lWideNewA ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle))]
 
                     vertBOps=[ ((lThick + lSupport + rFillet*(Math.sin((i+1)*filletTurnAngle)) )+rMajor)*Math.cos(j*thetaMajor), 
                         ((lThick + lSupport + rFillet*(Math.sin((i+1)*filletTurnAngle)) )+rMajor)*Math.sin(j*thetaMajor),  
-                        (lWideNew  ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))]
+                        ( lWideNewA ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))]
 
                     vertCOps=[ ((lThick + lSupport+ rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor),
                         ((lThick + lSupport+ rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor),  
-                         (lWideNew  ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))]
+                         ( lWideNewC ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))]
 
                     vertDOps=[((lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor), 
                         ((lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor),  
-                        (lWideNew  ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)) ]
+                        ( lWideNewC ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)) ]
 
                     normalAOps=[ (Math.sin(i*filletTurnAngle))*Math.cos(j*thetaMajor),  0,  (Math.cos(i*filletTurnAngle))]
                     normalBOps=[ (Math.sin((i+1)*filletTurnAngle))*Math.cos(j*thetaMajor),  0,  (Math.cos((i+1)*filletTurnAngle))]
@@ -423,19 +425,19 @@ let RingBufferGeo = {
             for(let i=0;i< noOfFilletEdges+1;i++){
                     vertAOps=[ (lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle))+rMajor)*Math.cos(j*thetaMajor), 
                         (lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle))+rMajor)*Math.sin(j*thetaMajor),  
-                        -((lWideNew  ) + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))]
+                        -(( lWideNewA ) + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))]
 
                     vertBOps=[ (lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))+rMajor)*Math.cos(j*thetaMajor), 
                         (lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))+rMajor)*Math.sin(j*thetaMajor), 
-                        -((lWideNew  ) + lSupport+rFillet*(Math.sin((i+1)*filletTurnAngle)))]
+                        -(( lWideNewA ) + lSupport+rFillet*(Math.sin((i+1)*filletTurnAngle)))]
 
                     vertCOps=[ (lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))+rMajor)*Math.cos((j+1)*thetaMajor), 
                         (lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle))+rMajor)*Math.sin((j+1)*thetaMajor), 
-                        -((lWideNew  ) + lSupport+rFillet*(Math.sin((i+1)*filletTurnAngle)))]
+                        -(( lWideNewC ) + lSupport+rFillet*(Math.sin((i+1)*filletTurnAngle)))]
 
                     vertDOps=[ (lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle))+rMajor)*Math.cos((j+1)*thetaMajor), 
                         (lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle))+rMajor)*Math.sin((j+1)*thetaMajor),  
-                        -((lWideNew  ) + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))]
+                        -(( lWideNewC ) + lSupport+rFillet*(Math.sin(i*filletTurnAngle)))]
 
                     normalAOps=[ (Math.cos(i*filletTurnAngle)),  0,  -(Math.sin(i*filletTurnAngle))]
                     normalBOps=[ (Math.cos((i+1)*filletTurnAngle)),  0,  -(Math.sin((i+1)*filletTurnAngle))]
@@ -451,19 +453,19 @@ let RingBufferGeo = {
             for(let i=0;i< noOfFilletEdges+1;i++){
                 vertAOps=[(-(lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.cos(j*thetaMajor), 
                     (-(lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.sin(j*thetaMajor), 
-                    -((lWideNew  ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))]
+                    -(( lWideNewA ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))]
 
                 vertBOps=[(-(lThick + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.cos((j)*thetaMajor),
                     (-(lThick + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.sin((j)*thetaMajor), 
-                    -((lWideNew  ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))]
+                    -(( lWideNewA ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))]
 
                 vertCOps=[(-(lThick + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor), 
                     (-(lThick + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    -((lWideNew  ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))]
+                    -(( lWideNewC ) + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))]
 
                 vertDOps=[(-(lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor),
                     (-(lThick + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    -((lWideNew  ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))]
+                    -(( lWideNewC ) + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))]
 
                 normalAOps=[ 0,0,-1]
                 normalBOps=[ 0,0,-1]
@@ -479,19 +481,19 @@ let RingBufferGeo = {
             for(let i=0;i< noOfFilletEdges+1;i++){
                 vertAOps=[(-(lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))+rMajor)*Math.cos(j*thetaMajor), 
                     (-(lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))+rMajor)*Math.sin(j*thetaMajor), 
-                    ((lWideNew  ) + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))]
+                    (( lWideNewA ) + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))]
 
                 vertBOps=[(-(lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))+rMajor)*Math.cos(j*thetaMajor), 
                     (-(lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))+rMajor)*Math.sin(j*thetaMajor),  
-                    ((lWideNew  ) + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))]
+                    (( lWideNewA ) + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))]
 
                 vertCOps=[(-(lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor), 
                     (-(lThick + lSupport + rFillet*(Math.cos((i+1)*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor),  
-                    ((lWideNew  ) + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))]
+                    (( lWideNewC ) + lSupport +rFillet*(Math.sin((i+1)*filletTurnAngle)))]
 
                 vertDOps=[(-(lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))+rMajor)*Math.cos((j+1)*thetaMajor), 
                     (-(lThick + lSupport + rFillet*(Math.cos(i*filletTurnAngle)))+rMajor)*Math.sin((j+1)*thetaMajor), 
-                    ((lWideNew  ) + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))]
+                    (( lWideNewC ) + lSupport +rFillet*(Math.sin(i*filletTurnAngle)))]
 
                 normalAOps=[ -(Math.cos(i*filletTurnAngle))*Math.cos(j*thetaMajor),   -(Math.cos(i*filletTurnAngle))*Math.sin(j*thetaMajor),  (Math.sin(i*filletTurnAngle))]
                 normalBOps=[ -(Math.cos((i+1)*filletTurnAngle))*Math.cos(j*thetaMajor),  -(Math.cos((i+1)*filletTurnAngle))*Math.sin(j*thetaMajor),  (Math.sin((i+1)*filletTurnAngle))]

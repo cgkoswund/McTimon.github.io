@@ -23,6 +23,8 @@ import {DefaultConstants} from "./DefaultConstants.js"
 			let newCurveHandlePoint;
 			let isTransforming = false;
 
+			let selectedHandleLocZ, selectedHandleID;
+
 
 
 			function init() {
@@ -48,17 +50,11 @@ import {DefaultConstants} from "./DefaultConstants.js"
 
 				// RingBufferGeo.make();
 				let ringRadius = DefaultConstants.ringRadius;
-				let controlSphereOffsetZ = DefaultConstants.ringWidth-2
-				let controlSphereOffsetR = DefaultConstants.ringThickness-2
+				let controlSphereOffsetZ = DefaultConstants.ringWidth-DefaultConstants.sphereSmallOffset
+				let controlSphereOffsetR = DefaultConstants.ringThickness-DefaultConstants.sphereSmallOffset
 				
 				{//setup control spheres
-					// curvePoints = [
-						// 	new THREE.Vector3( -10, 0, 10 ),
-						// 	new THREE.Vector3( -5, 5, 5 ),
-						// 	new THREE.Vector3( 0, 0, 0 ),
-						// 	new THREE.Vector3( 5, -5, 5 ),
-						// 	new THREE.Vector3( 10, 0, 10 )
-						// ];
+
 						
 						let sphereGeo = new THREE.SphereGeometry(ringRadius/40);
 						let sphereMat = new THREE.MeshStandardMaterial({color:0x3766ae});
@@ -75,24 +71,29 @@ import {DefaultConstants} from "./DefaultConstants.js"
 								if(identifier<=9){identifier= "0"+identifier;}
 								sphereMesh.name = "sphereHandle"+ identifier
 								offset++;
-								console.log(sphereMesh);
+								// console.log(sphereMesh);
 							}	
 
 							let sphereMesh;
-							
+
 							function makeSphere(){
 								sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
 								scene.add(sphereMesh)
 								handlesArray.push(sphereMesh)
 								if(i%4 == 0){
 									sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
-									curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ+2+curveSmallOffset))
+									curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ+curveSmallOffset))
 
 								}
 							}
 							let theta = Math.PI*2/8;
 
-							makeSphere();
+							// makeSphere();
+							sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
+							scene.add(sphereMesh)
+							handlesArray.push(sphereMesh)
+							sphereMesh.position.set((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ);
+							curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*Math.cos(theta*i),(ringRadius+controlSphereOffsetR)*Math.sin(theta*i),controlSphereOffsetZ+curveSmallOffset))
 							updateIDs();
 														
 							sphereMesh = new THREE.Mesh(sphereGeo,sphereMat)
@@ -116,9 +117,7 @@ import {DefaultConstants} from "./DefaultConstants.js"
 							updateIDs();
 						}
 						
-						//close the loop
-						// curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*1,(ringRadius+controlSphereOffsetR)*Math.sin(theta*0),controlSphereOffsetZ+2+curveSmallOffset))
-						// curvePoints.push(new THREE.Vector3((ringRadius+controlSphereOffsetR)*1,0,controlSphereOffsetZ+2+curveSmallOffset))
+						
 					}
 					
 					{//setup guide curve
@@ -132,8 +131,14 @@ import {DefaultConstants} from "./DefaultConstants.js"
 						
 						// Create the final object to add to the scene
 						curveObject = new THREE.Line( geometry, material );
+						curveObject.material.transparent = true;
+						curveObject.material.opacity = 0;
 						scene.add(curveObject);
 					}
+
+					// console.log(handlesArray);
+					// handlesArray.sort((a,b)=>b.position.x - a.position.x);
+					// console.log(handlesArray);
 					
 					updateRing(ringNewPoints);
 				const geometry2 = new THREE.TorusGeometry( 100, 15, 16, 100 );
@@ -215,6 +220,19 @@ import {DefaultConstants} from "./DefaultConstants.js"
 
 		// update the picking ray with the camera and pointer position
 
+	if(selectedHandle&&isTransforming){
+		selectedHandleLocZ = Math.abs(selectedHandle.position.z);
+		selectedHandleID = Number(selectedHandle.name.substring(12));
+
+
+		//get 4 handles ID
+		let batchSlot = Math.floor(selectedHandleID/4)
+
+		//move all 4 spheres
+		for(let i = 0; i < 4; i++){
+		handlesArray[batchSlot*4+i].position.z = selectedHandleLocZ*(1-2*(i%2))
+		}
+	}
 	
 	for(let i = 0; i<handlesArray.length;i++){
 		handlesArray[i].material.color = sphereMat.color;
@@ -239,7 +257,7 @@ import {DefaultConstants} from "./DefaultConstants.js"
 		break;
 	}
 	
-	if(isTransforming&&selectedHandle){selectedHandle.position.set(selectedHandle.position.x,selectedHandle.position.y,newCurveHandlePoint.z-curveSmallOffset-2)}
+	if(isTransforming&&selectedHandle){selectedHandle.position.z=newCurveHandlePoint.z}
 }
 
 		requestAnimationFrame( animate );
@@ -252,7 +270,6 @@ function addGuidePlane(position){
 
 	const geometry = new THREE.PlaneGeometry( 600, 300 );
 	const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide, opacity:0, transparent:true} );
-	console.log(material);
 	const plane = new THREE.Mesh( geometry, material );
 	plane.name = "movePlane"
 	plane.rotateY(Math.PI/2)
@@ -288,7 +305,11 @@ function updateGuideCurve(curvePoints){
 	curveObject.material.dispose();
 	curveObject.geometry.dispose();
 	curveObject = new THREE.Line( geometry, material );
+	// curveObject.material.transparent = true;
+	// curveObject.material.opacity = 0;
 	scene.add(curveObject);
+
+	updateRing(ringNewPoints)
 						
 }
 
@@ -316,6 +337,7 @@ function onPointerMove( event ) {
 		if(selectedHandle&&newCurveHandlePoint&&startedOnPoint){
 			isTransforming = true;
 			updateGuideCurve(8);
+			// updateRing(ringNewPoints)
 			// controls.enabled = false;
 		}else{
 			isTransforming = false;
