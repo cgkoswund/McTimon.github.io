@@ -168,5 +168,6 @@ let MaxNumberBufferGeometry = {
 //didn't happen but that's okay
 //maybe it'll happen tomorrow
 //or the day after
+//happy hunting!
 
 export { MaxNumberBufferGeometry };
