@@ -166,6 +166,5 @@ let MaxNumberBufferGeometry = {
 };
 //Todo some extra commits today
 //done
-//tomorrow we rise
 
 export { MaxNumberBufferGeometry };
