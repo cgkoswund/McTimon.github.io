@@ -8,7 +8,7 @@ let camera, scene, renderer, controls;
 
 let obj_upload_button = document.querySelector("#new_obj_btn");
 let hidden_upload_button = document.querySelector("#file_btn");
-let newModel, newMaterial, currentModel;
+let newModel, currentModel;
 
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
@@ -131,10 +131,8 @@ function init() {
 
   controls = new OrbitControls(camera, renderer.domElement);
 
-  controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-  controls.dampingFactor = 0.05;
-
   controls.screenSpacePanning = false;
+  controls.rotateSpeed = 0.2;
 
   window.addEventListener("resize", onWindowResize);
 }
