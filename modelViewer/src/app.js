@@ -1,20 +1,16 @@
 import * as THREE from "../build/three.module.js";
-
-import { MTLLoader } from "./jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "./jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 
 let camera, scene, renderer, controls;
 
-let obj_upload_button = document.querySelector("#new_obj_btn");
-let hidden_upload_button = document.querySelector("#file_btn");
-let newModel, currentModel;
-
-let windowHalfX = window.innerWidth / 2;
-let windowHalfY = window.innerHeight / 2;
+const obj_upload_button = document.querySelector("#new_obj_btn");
+const hidden_upload_button = document.querySelector("#file_btn");
+let newModel, oldModel;
 
 init();
 animate();
+
 const centreObject = (loadedObj) => {
   loadedObj.position.set(0, 0, 0);
   const boundingBox = groupBoundingBox(loadedObj);
@@ -24,10 +20,11 @@ const centreObject = (loadedObj) => {
     -(boundingBox.max.z + boundingBox.min.z) / 2
   );
 
-  camera.position.z =
-    ((boundingBox.max.y - boundingBox.min.y) * 300) / (2 * 90);
-  camera.position.x = 0;
-  camera.position.y = 0;
+  const modelWidth = boundingBox.max.x - boundingBox.min.x;
+  const modelHeight = boundingBox.max.y - boundingBox.min.y;
+  camera.position.set(0, 0, 0);
+  camera.position.z = (Math.max(modelWidth, modelHeight) * 300) / 180;
+
   controls.update();
 };
 const groupBoundingBox = (group) => {
@@ -61,7 +58,6 @@ function init() {
   camera.position.z = 300;
 
   // scene
-
   scene = new THREE.Scene();
 
   const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
@@ -72,7 +68,6 @@ function init() {
   scene.add(camera);
 
   // model
-
   const onProgress = function (xhr) {
     if (xhr.lengthComputable) {
       const percentComplete = (xhr.loaded / xhr.total) * 100;
@@ -84,20 +79,19 @@ function init() {
     "male02.obj",
     function (object) {
       object.position.y = -95;
-      currentModel = object;
+      oldModel = object;
       scene.add(object);
     },
     onProgress
   );
 
   const loadObjNew = (objFile) => {
-    if (currentModel) scene.remove(currentModel);
+    if (oldModel) scene.remove(oldModel);
 
     const uploadedObj = new OBJLoader().parse(objFile);
     centreObject(uploadedObj);
-    // uploadedObj.position.y = -95;
     scene.add(uploadedObj);
-    currentModel = uploadedObj;
+    oldModel = uploadedObj;
   };
 
   obj_upload_button.addEventListener("click", (e) => {
@@ -120,7 +114,6 @@ function init() {
       };
     }
   });
-  //
 
   renderer = new THREE.WebGLRenderer();
   renderer.outputEncoding = THREE.sRGBEncoding;
@@ -138,24 +131,14 @@ function init() {
 }
 
 function onWindowResize() {
-  windowHalfX = window.innerWidth / 2;
-  windowHalfY = window.innerHeight / 2;
-
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-//
-
 function animate() {
   requestAnimationFrame(animate);
-  render();
-}
-
-function render() {
   controls.update();
-
   renderer.render(scene, camera);
 }
