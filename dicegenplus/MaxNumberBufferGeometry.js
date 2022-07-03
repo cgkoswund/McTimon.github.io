@@ -165,6 +165,4 @@ let MaxNumberBufferGeometry = {
   // }
 };
 
-//done.
-
 export { MaxNumberBufferGeometry };
