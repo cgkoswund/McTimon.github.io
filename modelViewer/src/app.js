@@ -75,7 +75,7 @@ function init() {
     }
   };
 
-  new OBJLoader().setPath("/src/models/obj/male02/").load(
+  new OBJLoader().setPath("/modelViewer/src/models/obj/male02/").load(
     "male02.obj",
     function (object) {
       object.position.y = -95;
