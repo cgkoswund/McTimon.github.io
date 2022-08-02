@@ -1,7 +1,188 @@
+.background-color {
+  /*edit the background of the sphere*/
+  color: rgb(248, 196, 23);
+}
+
+.dots-color {
+  /*edit the square dots*/
+  color: rgb(67, 67, 67);
+  opacity: 1;
+}
+
+.lines-color {
+  /*edit the lines of the rotating sphere*/
+  color: rgb(63, 63, 63);
+  opacity: 0.15;
+}
+
+/***********************************************************/
+/*Other Styling*/
+
+@font-face {
+  font-family: "MuseoSans-500";
+  src: url(assets/fonts/9829bcca7ac6ad4a.eot);
+  src: url(assets/fonts/9829bcca7ac6ad4a.eot?#iefix) format("embedded-opentype"),
+    url(assets/images/8de050159b978899.svg#MuseoSans-500) format("svg"),
+    url(assets/fonts/9f4c2cbd5a1a89c0.ttf) format("truetype"),
+    url(assets/fonts/36ac5818a229145d.woff) format("woff"),
+    url(assets/fonts/aae42f30f549b5b2.woff2) format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*default browser margin reset*/
 * {
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+
+.fg-container {
+  display: flex;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+}
+
+.button-container {
+  display: block;
+  width: 50%;
+  height: fit-content;
+  margin: auto;
+  padding: auto;
+}
+
+#hero-text {
+  font-size: 3rem;
+  font-family: "MuseoSans-500";
+  color: #1d1e20;
+  align-items: center;
+}
+
+.icon-play-puls {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 54%;
+  transform: translateX(-54%) translateY(-50%);
+  border-left: 30px solid #ffffff;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+}
+
+.play-youtube {
+  display: block;
+  width: 110px;
+  height: 110px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 39;
+  transform: translateX(-50%) translateY(-50%);
+  background-image: linear-gradient(
+    to right,
+    #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  );
+  background-size: 200% auto;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+.play-youtube:hover {
+  background-position: right center; /* change the direction of the change here */
+}
+
+.play-youtube::before,
+.play-youtube::after {
+  content: "";
+  border: 1px solid;
+  border-top-color: currentcolor;
+  border-right-color: currentcolor;
+  border-bottom-color: currentcolor;
+  border-left-color: currentcolor;
+  border-color: #0048a8;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 1;
+  /* -webkit-animation: 1s stm_zoom linear infinite; */
+  /* animation: 1s stm_zoom linear infinite; */
+  /* animation-delay: 0s; */
+}
+
+.play-youtube::before {
+  /* -webkit-animation-delay: 0.5s; */
+  /* animation-delay: 0.5s; */
+}
+
+.play-youtube::after {
+  content: "";
+  border: 1px solid;
+  border-top-color: currentcolor;
+  border-right-color: currentcolor;
+  border-bottom-color: currentcolor;
+  border-left-color: currentcolor;
+  border-color: #0048a8;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 1;
+  /* -webkit-animation: 1s stm_zoom linear infinite; */
+  /* animation: 1s stm_zoom linear infinite; */
+}
+
+@keyframes stm_zoom {
+  from {
+    transform: scale(1) translateX(-50%) translateY(-50%);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.5) translateX(-32%) translateY(-32%);
+    opacity: 0;
+  }
+}
+.btn-wrap-border {
+  display: block;
+}
+
+.circles-youtube,
+.circles-youtube2 {
+  /* transform: translateX(-50%) translateY(-50%); */
+  opacity: 0;
+  display: block;
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  top: 50%;
+  left: 50%;
+  z-index: 39;
+  border-radius: 50%;
+  border: 1px solid;
+
+  border-color: #0048a8;
+  /* opacity: 1; */
+}
+
+.circles-youtube {
+  -webkit-animation: 1s stm_zoom linear infinite;
+  animation: 1s stm_zoom linear infinite;
+}
+
+.circles-youtube2 {
+  -webkit-animation: stm_zoom 1s linear 0.5s infinite;
+  animation: stm_zoom 1s linear 0.5s infinite;
 }
 
 
