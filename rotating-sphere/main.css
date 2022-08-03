@@ -8,11 +8,25 @@
   color: rgb(67, 67, 67);
   opacity: 1;
 }
+/*edit the speed of the rotation*/
+/*100 is normal speed, 1 is 100x speed*/
+.sphere-rotation {
+  animation-duration: 1000s;
+}
 
 .lines-color {
   /*edit the lines of the rotating sphere*/
   color: rgb(63, 63, 63);
   opacity: 0.15;
+}
+/* Edit 3 colors for left, middle and right colors of gradient*/
+.button-color {
+  background-image: linear-gradient(
+    to right,
+    #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  );
 }
 
 /***********************************************************/
@@ -62,6 +76,7 @@
   font-family: "MuseoSans-500";
   color: #1d1e20;
   align-items: center;
+  text-align: center;
 }
 
 .icon-play-puls {
@@ -94,62 +109,14 @@
   border-radius: 50%;
   transition: all 0.3s;
 }
-.play-youtube:hover {
-  background-position: right center; /* change the direction of the change here */
-}
-
-.play-youtube::before,
-.play-youtube::after {
-  content: "";
-  border: 1px solid;
-  border-top-color: currentcolor;
-  border-right-color: currentcolor;
-  border-bottom-color: currentcolor;
-  border-left-color: currentcolor;
-  border-color: #0048a8;
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 1;
-  /* -webkit-animation: 1s stm_zoom linear infinite; */
-  /* animation: 1s stm_zoom linear infinite; */
-  /* animation-delay: 0s; */
-}
-
-.play-youtube::before {
-  /* -webkit-animation-delay: 0.5s; */
-  /* animation-delay: 0.5s; */
-}
-
-.play-youtube::after {
-  content: "";
-  border: 1px solid;
-  border-top-color: currentcolor;
-  border-right-color: currentcolor;
-  border-bottom-color: currentcolor;
-  border-left-color: currentcolor;
-  border-color: #0048a8;
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 1;
-  /* -webkit-animation: 1s stm_zoom linear infinite; */
-  /* animation: 1s stm_zoom linear infinite; */
-}
 
 @keyframes stm_zoom {
   from {
-    transform: scale(1) translateX(-50%) translateY(-50%);
+    transform: scale(1); /* translateX(-50%) translateY(-50%);*/
     opacity: 0.6;
   }
   to {
-    transform: scale(1.5) translateX(-32%) translateY(-32%);
+    transform: scale(1.5); /*translateX(-32%) translateY(-32%);*/
     opacity: 0;
   }
 }
@@ -157,16 +124,16 @@
   display: block;
 }
 
-.circles-youtube,
-.circles-youtube2 {
+.circles-youtube1,
+.circles-youtube12 {
   /* transform: translateX(-50%) translateY(-50%); */
-  opacity: 0;
-  display: block;
+  /* opacity: 0; */
+  display: flex;
   position: absolute;
   width: 110px;
   height: 110px;
-  top: 50%;
-  left: 50%;
+  /* top: 50%; */
+  /* left: 50%; */
   z-index: 39;
   border-radius: 50%;
   border: 1px solid;
@@ -175,6 +142,58 @@
   /* opacity: 1; */
 }
 
+#play-button {
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+  /* background-color: red; */
+
+  height: 165px;
+  width: 100%;
+  /* height: 110px;
+  width: 110px; */
+}
+.button-color {
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+  /* background-image: linear-gradient(
+    to right,
+    #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  ); */
+  border-radius: 50%;
+  height: 110px;
+  width: 110px;
+  background-size: 200% auto;
+  border-radius: 50%;
+  transition: all 0.3s;
+  /* height: 110px;
+  width: 110px; */
+}
+.button-color:hover {
+  background-position: right center;
+  cursor: pointer;
+}
+#play-icon {
+  height: 60px;
+  width: 60px;
+  /* background-color: rebeccapurple; */
+  margin-left: 30px;
+}
+
+.circles-youtube1 {
+  -webkit-animation: 1s stm_zoom linear infinite;
+  animation: 1s stm_zoom linear infinite;
+}
+
+.circles-youtube12 {
+  -webkit-animation: stm_zoom 1s linear 0.5s infinite;
+  animation: stm_zoom 1s linear 0.5s infinite;
+}
 .circles-youtube {
   -webkit-animation: 1s stm_zoom linear infinite;
   animation: 1s stm_zoom linear infinite;
@@ -184,6 +203,5 @@
   -webkit-animation: stm_zoom 1s linear 0.5s infinite;
   animation: stm_zoom 1s linear 0.5s infinite;
 }
-
 
 /*# sourceMappingURL=main.css.map*/
