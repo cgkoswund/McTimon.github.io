@@ -1,67 +1,77 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-    <head>
-        <style>
-        p{
-           font-family: Raleway;
-           font-size: 30px;
-        }
-            
-        iframe{
-            border: none;
-            width: 100%;
-            overflow-x: hidden;
-        }
-        </style>
-        
-        <script>
-            //set iframe height to match it's contents (only works on server)
-            
-            function getDocHeight(doc) {
-                doc = doc || document;
-                var body = doc.body, html = doc.documentElement;
-                var height = Math.max( body.scrollHeight, body.offsetHeight, 
-                 html.clientHeight, html.scrollHeight, html.offsetHeight );
-                return height;
-                }
-            
-            function setIframeHeight(id) {
-                var ifrm = document.getElementById(id);
-                var doc = ifrm.contentDocument? ifrm.contentDocument: 
-                    ifrm.contentWindow.document;
-                ifrm.style.visibility = 'hidden';
-                ifrm.style.height = "10px"; // reset to minimal height ...
-                
-                // IE opt. for bing/msn needs a bit added or scrollbar appears
-                ifrm.style.height = getDocHeight( doc ) + 4 + "px";
-                
-                ifrm.style.visibility = 'visible';
-                }
-            
-            function initPage(){
-                setIframeHeight('327_animations');
-                setIframeHeight('1238_animations');
-            }
-            
-            window.onload = initPage;
-            
-            if(window.attachEvent){
-                window.attachEvent('onresize', function(){
-                initPage();
-            });
-            }else if(window.addEventListener){
-                window.addEventListener('resize', function(){
-                initPage();
-            }, true);
-            }
+  <head>
+    <style>
+      p {
+        font-family: Raleway;
+        font-size: 30px;
+      }
 
-        </script>
-    </head>
-    <body>
-        <p>3 Foam layers With Animations</p>
-        <iframe id="327_animations" src="327_with_animations.html"></iframe>
-        
-        <p>4 layers + quilted top With Animations</p>
-        <iframe id="1238_animations" src="1238_with_animations.html"></iframe>
-    </body>
+      iframe {
+        border: none;
+        width: 100%;
+        overflow-x: hidden;
+      }
+    </style>
+
+    <script>
+      //set iframe height to match it's contents (only works on server)
+
+      function getDocHeight(doc) {
+        doc = doc || document;
+        var body = doc.body,
+          html = doc.documentElement;
+        var height = Math.max(
+          body.scrollHeight,
+          body.offsetHeight,
+          html.clientHeight,
+          html.scrollHeight,
+          html.offsetHeight
+        );
+        return height;
+      }
+
+      function setIframeHeight(id) {
+        var ifrm = document.getElementById(id);
+        var doc = ifrm.contentDocument
+          ? ifrm.contentDocument
+          : ifrm.contentWindow.document;
+        ifrm.style.visibility = "hidden";
+        ifrm.style.height = "10px"; // reset to minimal height ...
+
+        // IE opt.. for bing/msn needs a bit added or scrollbar appears
+        ifrm.style.height = getDocHeight(doc) + 4 + "px";
+
+        ifrm.style.visibility = "visible";
+      }
+
+      function initPage() {
+        setIframeHeight("327_animations");
+        setIframeHeight("1238_animations");
+      }
+
+      window.onload = initPage;
+
+      if (window.attachEvent) {
+        window.attachEvent("onresize", function () {
+          initPage();
+        });
+      } else if (window.addEventListener) {
+        window.addEventListener(
+          "resize",
+          function () {
+            initPage();
+          },
+          true
+        );
+      }
+    </script>
+  </head>
+  <body>
+    <p>3 Foam layers With Animations</p>
+    <iframe id="327_animations" src="327_with_animations.html"></iframe>
+
+    <p>4 layers + quilted top With Animations</p>
+    <iframe id="1238_animations" src="1238_with_animations.html"></iframe>
+  </body>
 </html>
