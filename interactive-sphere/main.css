@@ -1,0 +1,181 @@
+.background-color {
+  /*edit the background of the sphere*/
+  color: rgb(20, 20, 20);
+  /* color: rgb(248, 196, 23); */
+}
+
+.lines-color {
+  /*edit the lines of the rotating sphere*/
+  color: rgb(23, 23, 23);
+  opacity: 0.15;
+}
+/* Edit 3 colors for left, middle and right colors of gradient*/
+.button-color {
+  background-image: linear-gradient(
+    to right,
+    /* rgb(20, 30, 40) 0,
+    rgb(0, 0, 0) 51%,
+    rgb(20, 30, 40) 100%  */
+      #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  );
+}
+
+/***********************************************************/
+/*Other Styling*/
+
+/*default browser margin reset*/
+* {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.fg-container {
+  display: flex;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+}
+
+.button-container {
+  display: block;
+  width: 50%;
+  height: fit-content;
+  margin: auto;
+  padding: auto;
+}
+
+.icon-play-puls {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 54%;
+  transform: translateX(-54%) translateY(-50%);
+  border-left: 30px solid #ffffff;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+}
+
+.play-youtube {
+  display: block;
+  width: 110px;
+  height: 110px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 39;
+  transform: translateX(-50%) translateY(-50%);
+  background-image: linear-gradient(
+    to right,
+    #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  );
+  background-size: 200% auto;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+@keyframes stm_zoom {
+  from {
+    transform: scale(1); /* translateX(-50%) translateY(-50%);*/
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.5); /*translateX(-32%) translateY(-32%);*/
+    opacity: 0;
+  }
+}
+.btn-wrap-border {
+  display: block;
+}
+
+.circles-youtube1,
+.circles-youtube12 {
+  /* transform: translateX(-50%) translateY(-50%); */
+  /* opacity: 0; */
+  display: flex;
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  /* top: 50%; */
+  /* left: 50%; */
+  z-index: 39;
+  border-radius: 50%;
+  border: 1px solid;
+
+  border-color: #0048a8;
+  /* opacity: 1; */
+}
+
+#play-button {
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+  /* background-color: red; */
+
+  height: 165px;
+  width: 100%;
+  /* height: 110px;
+  width: 110px; */
+}
+.button-color {
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+  /* background-image: linear-gradient(
+    to right,
+    #0063e6 0,
+    #0048a8 51%,
+    #0063e6 100%
+  ); */
+  border-radius: 50%;
+  height: 110px;
+  width: 110px;
+  background-size: 200% auto;
+  border-radius: 50%;
+  transition: all 0.3s;
+  /* height: 110px;
+  width: 110px; */
+}
+.button-color:hover {
+  background-position: right center;
+  cursor: pointer;
+}
+#play-icon {
+  height: 60px;
+  width: 60px;
+  /* background-color: rebeccapurple; */
+  margin-left: 30px;
+}
+
+.circles-youtube1 {
+  -webkit-animation: 1s stm_zoom linear infinite;
+  animation: 1s stm_zoom linear infinite;
+}
+
+.circles-youtube12 {
+  -webkit-animation: stm_zoom 1s linear 0.5s infinite;
+  animation: stm_zoom 1s linear 0.5s infinite;
+}
+.circles-youtube {
+  -webkit-animation: 1s stm_zoom linear infinite;
+  animation: 1s stm_zoom linear infinite;
+}
+
+.circles-youtube2 {
+  -webkit-animation: stm_zoom 1s linear 0.5s infinite;
+  animation: stm_zoom 1s linear 0.5s infinite;
+}
+
+
+/*# sourceMappingURL=main.css.map*/
