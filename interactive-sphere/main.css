@@ -9,6 +9,12 @@
   color: rgb(23, 23, 23);
   opacity: 0.15;
 }
+
+.selection-lines-color {
+  /*edit the lines of the rotating sphere*/
+  color: rgb(204, 188, 44);
+  opacity: 0.15;
+}
 /* Edit 3 colors for left, middle and right colors of gradient*/
 .button-color {
   background-image: linear-gradient(
