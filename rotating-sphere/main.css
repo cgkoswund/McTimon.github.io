@@ -33,13 +33,13 @@
 /*Other Styling*/
 
 @font-face {
-  font-family: "MuseoSans-500";
+  font-family: 'MuseoSans-500';
   src: url(assets/fonts/9829bcca7ac6ad4a.eot);
-  src: url(assets/fonts/9829bcca7ac6ad4a.eot?#iefix) format("embedded-opentype"),
-    url(assets/images/8de050159b978899.svg#MuseoSans-500) format("svg"),
-    url(assets/fonts/9f4c2cbd5a1a89c0.ttf) format("truetype"),
-    url(assets/fonts/36ac5818a229145d.woff) format("woff"),
-    url(assets/fonts/aae42f30f549b5b2.woff2) format("woff2");
+  src: url(assets/fonts/9829bcca7ac6ad4a.eot?#iefix) format('embedded-opentype'),
+    url(assets/images/8de050159b978899.svg#MuseoSans-500) format('svg'),
+    url(assets/fonts/9f4c2cbd5a1a89c0.ttf) format('truetype'),
+    url(assets/fonts/36ac5818a229145d.woff) format('woff'),
+    url(assets/fonts/aae42f30f549b5b2.woff2) format('woff2');
   font-weight: normal;
   font-style: normal;
 }
@@ -73,7 +73,7 @@
 
 #hero-text {
   font-size: 3rem;
-  font-family: "MuseoSans-500";
+  font-family: 'MuseoSans-500';
   color: #1d1e20;
   align-items: center;
   text-align: center;
@@ -139,7 +139,7 @@
   border: 1px solid;
 
   border-color: #0048a8;
-  /* opacity: 1; ****/
+  /* opacity: 1; ***-=*/
 }
 
 #play-button {
