@@ -1,21 +1,39 @@
-*
-{
-    margin: 0;
-    padding: 0;
+* {
+  margin: 0;
+  padding: 0;
 }
 
 html,
-body
-{
-    overflow: hidden;
+body {
+  /* overflow: hidden; */
+  /* -ms-overflow-style: none; Internet Explorer 10+ */
+  /* scrollbar-width: none; Firefox */
 }
 
-.webgl
-{
-    position: fixed;
-    top: 0;
-    left: 0;
-    outline: none;
+body::-webkit-scrollbar {
+  /* display: none; Safari and Chrome */
+}
+
+body {
+  height: 1000vh;
+}
+
+.webgl {
+  position: fixed;
+  /* top: 0;
+  left: 0;
+  outline: none; */
+  /* z-index: 1; */
+}
+
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgb(34, 255, 0);
+  height: 100%;
+  width: 400px;
+  z-index: 999;
 }
 
 
