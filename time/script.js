@@ -37,7 +37,7 @@ const remainingAbsoluteHours =
   remainingMinutes / 60;
 const remainingAbsHrsTrimmed = Math.floor(remainingAbsoluteHours * 1000) / 1000;
 
-//publish
+//publish tests
 // const finalInfo = `${remainingDays}:${remainingHours}:${remainingDays} of free time left this week`;
 const finalInfo = `${remainingAbsHrsTrimmed} hrs of free time left this week`;
 
