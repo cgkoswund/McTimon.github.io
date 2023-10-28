@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DS Bikes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- <video id="bgVideo" controls preload="true" autoplay loop muted>
+      <source src="bike_bg_video_.mp4" type="video/mp4" />
+     
+    </video>-->
+    <video
+      id="bgVideo"
+      preload="true"
+      autoplay
+      loop
+      muted
+      background
+      disablePictureInPicture
+      playsinline
+    >
+      <source src="bike_bg_video_.mp4" type="video/mp4" />
+      <!-- -->
+    </video>
+    <div class="curtain">.</div>
+    <canvas id="crt-canvas"> </canvas>
+    <div class="text-and-line-container">
+      <div class="line-anim-container">
+        <canvas id="line-anim-canvas" width="5" height="5"> </canvas>
+      </div>
+      <div class="big-text-container">
+        <div class="big-text">OUR BIKE</div>
+        <div class="big-text2">IS DA SHET.</div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
