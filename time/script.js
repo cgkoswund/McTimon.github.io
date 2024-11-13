@@ -48,3 +48,4 @@ textElement.innerHTML = finalInfo;
  * M  T   W   T   F   S   S
  */
 //hopefully I can religiously get back to this
+//test react native version of this app
